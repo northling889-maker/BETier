@@ -192,15 +192,16 @@ body{background:#0c0c10;background-image:radial(#171720 1px,transparent 0);backg
             "RHT1","RLT1","RHT2","RLT2","PLT1","PHT2","PLT2","PHT3","PLT3",
             "-"
         ];
-        function getRankTier(total) {
-            if (total >= 800) return { name: "Combat GrandMaster", color: "gm" };
-            if (total >= 500) return { name: "Combat Master", color: "master" };
-            if (total >= 200) return { name: "Combat Ace", color: "ace" };
-            if (total >= 100) return { name: "Combat Specialist", color: "spec" };
-            if (total >= 40) return { name: "Combat Cadet", color: "cadet" };
-            if (total >= 20) return { name: "Combat Novice", color: "rookie" };
-            return { name: "Rookie", color: "rookie" };
-        }
+        // 获取段位名称与对应颜色class
+function getTierInfo(total){
+  if(total >= 800) return {name:"Combat GrandMaster", cls:"text-grandmaster"}
+  if(total >= 500) return {name:"Combat Master", cls:"text-master"}
+  if(total >= 200) return {name:"Combat Ace", cls:"text-ace"}
+  if(total >= 100) return {name:"Combat Specialist", cls:"text-specialist"}
+  if(total >= 40) return {name:"Combat Cadet", cls:"text-cadet"}
+  if(total >= 20) return {name:"Combat Novice", cls:"text-novice"}
+  return {name:"Rookie", cls:"text-rookie"}
+},
         const modeList = [
             "Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot",
             "OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"

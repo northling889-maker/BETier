@@ -1,0 +1,18 @@
+[
+    {
+        "name": "NightPvP",
+        "modes": {
+            "Sword":"HT1","Axe":"HT1","SMP":"LT1","UHC":"HT2","Crystal":"HT1","Mace":"LT1",
+            "Pot":"HT2","NethPot":"LT2","OPot":"HT3","OUHC":"HT3","Bedwars":"HT2","Fireball":"LT2",
+            "TopFight":"HT3","Archer":"LT3","Sumo":"HT4","Boxing":"LT4"
+        }
+    },
+    {
+        "name": "EnderCrystalKing",
+        "modes": {
+            "Sword":"HT2","Axe":"LT1","SMP":"HT1","UHC":"HT1","Crystal":"HT1","Mace":"HT2",
+            "Pot":"LT1","NethPot":"HT2","OPot":"LT2","OUHC":"HT3","Bedwars":"LT2","Fireball":"HT3",
+            "TopFight":"LT3","Archer":"LT4","Sumo":"LT4","Boxing":"LT5"
+        }
+    }
+]

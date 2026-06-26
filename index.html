@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCTiers Clone | PVP Tier Rank</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        grandmaster: '#ffd700',
+        master: '#b35cff',
+        ace: '#42a5f5',
+        specialist: '#36d399',
+        cadet: '#f2ee63',
+        novice: '#ff8533',
+        rookie: '#868686',
+        bgMain: '#0c0c10',
+        bgCard: '#14141b',
+        bgHeader: '#1a1a24',
+        borderLine: '#282836'
+      }
+    }
+  }
+}
+</script>
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,Microsoft YaHei,sans-serif}
+body{background:#0c0c10;background-image:radial(#171720 1px,transparent 0);background-size:22px 22px;color:#e2e8f0}
+/* 各Tier独立颜色 */
+.tier-HT1,.tier-RHT1{color:#ffd700;font-weight:bold}
+.tier-LT1,.tier-RLT1{color:#ffc742}
+.tier-HT2,.tier-RHT2{color:#42a5f5;font-weight:bold}
+.tier-LT2,.tier-RLT2{color:#73bffc}
+.tier-HT3{color:#36d399;font-weight:bold}
+.tier-LT3{color:#7be2b8}
+.tier-HT4{color:#a57bff;font-weight:bold}
+.tier-LT4{color:#c8b4ff}
+.tier-HT5{color:#999;font-weight:bold}
+.tier-LT5{color:#bbb}
+.tier-PLT1{color:#ff6b6b;font-weight:bold}
+.tier-PHT2{color:#ff9494}
+.tier-PLT2{color:#ffa8a8}
+.tier-PHT3{color:#ffc2c2;font-weight:bold}
+.tier-PLT3{color:#ffd8d8}
+.tier--{color:#5a5a}
+/* 七大段位文字色 */
+.text-grandmaster { color: #ffd700; }
+.text-master { color: #b35cff; }
+.text-ace { color: #42a5f5; }
+.text-specialist { color: #36d399; }
+.text-cadet { color: #f2ee63; }
+.text-novice { color: #ff8533; }
+.text-rookie { color: #8686; }
+table{border-collapse:collapse;width:100}
+.table-wrap{overflow-x:auto}
+thead tr{background:#1a1a24}
+tbody tr{border-top:1px solid #282836}
+tbody tr:hover{background:#1c1c28;cursor:pointer}
+th,td{padding:12px 8px;text-align:center;font-size:14px}
+th:first-child,td:first-child{text-align:left}
+th:nth-child(2),td:nth-child(2){text-align:left}
+.search-input{background:#1a1a24;border:1px solid #282836;color:#fff}
+.search-input:focus{outline:none;border-color:#42a5f5}
+.modal-bg{position:fixed;inset:0;background:#000;z-50;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-box{width:min(95%,1100px);max-height:90vh;overflow-y:auto;background:#14141b;border:1px solid #282836;border-radius:12;padding:1.5rem}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.detail-item{background:#1a1a24;padding:10px;border-radius:6}
+.page-btn{background:#1a1a24;border:1px solid #282836;padding:6 12px;border-radius:4}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+</style>
+</head>
+<body class="p-4 md:p-6">
+<div class="max-w-[1600px] mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="text-[clamp(1.7rem,3vw,2.4rem)] font-bold text-white mb-2">
+      <i class="fa-solid fa-crosshairs text-red-500 mr-2"></i>MCTiers PVP Rank
+    </h1>
+    <p class="text-gray-400">16模式综合段位排行榜 | 总分自动计算段位</p>
+  </div>
+
+  <div class="max-w-xl mx-auto mb-7 relative">
+    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+    <input id="searchBox" class="search-input w-full py-3 pl-11 pr-4 rounded-lg text-base" placeholder="输入玩家名称搜索...">
+  </div>
+
+  <div class="bg-bgCard rounded-lg p-5 mb-6 border borderLine">
+    <h3 class="text-lg font-bold mb-4 text-white">段位分级（所有模式分数总和判定）</h3>
+    <div class="grid grid-cols-2 md:grid-4 lg:grid-7 gap-3 text-sm">
+      <span class="text-grandmaster font-semibold">Combat GrandMaster ≥800</span>
+      <span class="text-master font-semibold">Combat Master ≥500</span>
+      <span class="text-ace font-semibold">Combat Ace ≥200</span>
+      <span class="text-specialist font-semibold">Combat Specialist ≥100</span>
+      <span class="text-cadet font-semibold">Combat Cadet ≥40</span>
+      <span class="text-novice font-semibold">Combat Novice ≥20</span>
+      <span class="text-rookie font-semibold">Rookie ≥1</span>
+    </div>
+    <div class="mt-4 text-gray-400 text-sm">
+      16个PVP模式：Sword, Axe, SMP, UHC, Crystal, Mace, Pot, NethPot, OPot, OUHC, Bedwars, Fireball, TopFight, Archer, Sumo, Boxing
+    </div>
+  </div>
+
+  <div class="table-wrap bg-bgCard rounded-lg border borderLine mb-5">
+    <table>
+      <thead>
+        <tr>
+          <th>#Rank</th>
+          <th>玩家ID</th>
+          <th>总分</th>
+          <th>段位</th>
+          <th>Sword</th>
+          <th>Axe</th>
+          <th>SMP</th>
+          <th>UHC</th>
+          <th>Crystal</th>
+          <th>Mace</th>
+          <th>Pot</th>
+          <th>NethPot</th>
+          <th>OPot</th>
+          <th>OUHC</th>
+          <th>Bedwars</th>
+          <th>Fireball</th>
+          <th>TopFight</th>
+          <th>Archer</th>
+          <th>Sumo</th>
+          <th>Boxing</th>
+        </tr>
+      <tbody id="playerTableBody"></tbody>
+      </thead>
+    </table>
+  </div>
+
+  <div class="flex flex-wrap justify-center items-center gap-4 bg-bgCard p-4 rounded-lg border borderLine">
+    <div class="flex items-center gap-2">
+      <span>每页</span>
+      <select id="pageSizeSel" class="bg-bgHeader border borderLine py-1 px-2 rounded">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+      <span>名玩家</span>
+    </div>
+    <div class="flex gap-2 items-center">
+      <button id="prevBtn" class="page-btn" disabled><i class="fa-chevron-left fa-solid"></i></button>
+      <span id="pageText">第1页 / 共1页</span>
+      <button id="nextBtn" class="page-btn" disabled><i class="fa-chevron-right fa-solid"></i></button>
+    </div>
+  </div>
+</div>
+
+<div id="detailModal" class="modal-bg">
+  <div class="modal-box">
+    <div class="flex justify-between items-center mb-5">
+      <h2 class="text-xl font-bold text-white" id="detailName"></h2>
+      <button id="closeDetail" class="text-gray-400 text-xl hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb-5">
+      <p class="text-lg">总积分：<span id="detailTotal" class="text-2xl font-bold text-white"></span></p>
+      <p class="text-lg mt-1">段位：<span id="detailTierText" class="font-bold"></span></p>
+    </div>
+    <div class="detail-grid" id="detailGrid"></div>
+  </div>
+</div>
+
+<script>
+// 16个模式
+const MODES = ["Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot","OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"];
+// 完整Tier分数表
+const TIER_SCORE = {
+  "HT1":60,"RHT1":60,
+  "LT1":45,"RLT1":45,
+  "HT2":30,"RHT2":30,
+  "LT2":20,"RLT2":20,
+  "PLT1":50,
+  "PHT2":34,
+  "PLT2":23,
+  "PHT3":12,
+  "PLT3":6,
+  "HT3":10,"LT3":5,
+  "HT4":4,"LT4":3,
+  "HT5":2,"LT5":1,
+  "-":0
+};
+// 根据总分获取段位名称+样式类
+function getTierInfo(total){
+  if(total >= 800) return {name:"Combat GrandMaster", cls:"text-grandmaster"}
+  if(total >= 500) return {name:"Combat Master", cls:"text-master"}
+  if(total >= 200) return {name:"Combat Ace", cls:"text-ace"}
+  if(total >= 100) return {name:"Combat Specialist", cls:"text-specialist"}
+  if(total >= 40) return {name:"Combat Cadet", cls:"text-cadet"}
+  if(total >= 20) return {name:"Combat Novice", cls:"text-novice"}
+  return {name:"Rookie", cls:"text-rookie"}
+}
+// 计算单个玩家总分
+function calcTotal(player){
+  let sum = 0;
+  MODES.forEach(m=>sum += TIER_SCORE[player.modes[m]])
+  return sum
+}
+// 测试玩家数据（分数高低区分明显，方便测试排序）
+let playerList = [
+  {name:"ZeroNewbie",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"ArcherAce",modes:{Sword:"LT4",Axe:"LT4",SMP:"LT3",UHC:"LT3",Crystal:"PHT3",Mace:"LT4",Pot:"LT3",NethPot:"LT4",OPot:"LT4",OUHC:"LT4",Bedwars:"LT3",Fireball:"LT3",TopFight:"LT4",Archer:"RHT2",Sumo:"LT5",Boxing:"LT5"}},
+  {name:"PotFighter",modes:{Sword:"LT3",Axe:"LT3",SMP:"LT2",UHC:"LT2",Crystal:"PLT3",Mace:"LT3",Pot:"RHT1",NethPot:"RHT1",OPot:"HT2",OUHC:"LT2",Bedwars:"LT3",Fireball:"LT3",TopFight:"LT3",Archer:"LT4",Sumo:"LT4",Boxing:"LT4"}},
+  {name:"BedWarsNo1",modes:{Sword:"LT2",Axe:"LT3",SMP:"LT2",UHC:"LT2",Crystal:"RLT2",Mace:"LT3",Pot:"LT2",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"RHT1",Fireball:"LT2",TopFight:"LT3",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"UHC_Pro",modes:{Sword:"LT1",Axe:"LT2",SMP:"HT2",UHC:"RHT1",Crystal:"RLT1",Mace:"LT2",Pot:"LT2",NethPot:"RLT1",OPot:"LT2",OUHC:"RHT1",Bedwars:"LT2",Fireball:"LT2",TopFight:"LT3",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"SumoMain",modes:{Sword:"LT2",Axe:"LT2",SMP:"LT3",UHC:"LT3",Crystal:"RLT1",Mace:"LT2",Pot:"LT3",NethPot:"LT3",OPot:"LT4",OUHC:"LT4",Bedwars:"LT2",Fireball:"LT3",TopFight:"LT3",Archer:"LT4",Sumo:"RHT1",Boxing:"LT2"}},
+  {name:"CrystalKing66",modes:{Sword:"HT2",Axe:"LT1",SMP:"HT1",UHC:"RHT1",Crystal:"RHT1",Mace:"HT2",Pot:"LT1",NethPot:"RLT2",OPot:"LT2",OUHC:"PHT2",Bedwars:"LT1",Fireball:"LT2",TopFight:"PLT2",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"PVP_God",modes:{Sword:"RHT1",Axe:"HT1",SMP:"RHT1",UHC:"HT1",Crystal:"RHT1",Mace:"LT1",Pot:"HT2",NethPot:"HT2",OPot:"PLT1",OUHC:"PLT1",Bedwars:"HT1",Fireball:"HT1",TopFight:"PHT2",Archer:"HT3",Sumo:"HT2",Boxing:"HT2"}}
+];
+// 分页、搜索全局变量
+let currentPage = 1;
+let pageSize = 10;
+let searchKeyword = "";
+// 打开玩家详情弹窗
+function openDetail(player){
+  const total = calcTotal(player);
+  const tierInfo = getTierInfo(total);
+  document.getElementById("detailName").innerText = player.name;
+  document.getElementById("detailTotal").innerText = total;
+  document.getElementById("detailTierText").innerText = tierInfo.name;
+  document.getElementById("detailTierText").className = tierInfo.cls + " font-bold";
+  const grid = document.getElementById("detailGrid");
+  grid.innerHTML = "";
+  MODES.forEach(m=>{
+    const t = player.modes[m];
+    const score = TIER_SCORE[t];
+    const div = document.createElement("div");
+    div.className = "detail-item";
+    div.innerHTML = `<div>${m}</div><div class="tier-${t.replace("-","")}">${t} (${score}分)</div>`;
+    grid.appendChild(div);
+  })
+  document.getElementById("detailModal").style.display = "flex";
+}
+// 关闭详情弹窗
+function closeDetail(){
+  document.getElementById("detailModal").style.display = "none";
+}
+// 核心渲染函数（修复排序逻辑）
+function renderTable(){
+  // 1. 拷贝原始数组，附加总分字段
+  let fullData = playerList.map(item => {
+    return {
+      ...item,
+      total: calcTotal(item)
+    }
+  });
+  // 2. 关键词过滤
+  let filterData = fullData.filter(item => item.name.toLowerCase().includes(searchKeyword.toLowerCase()));
+  // 3. 按总分从高到低排序（修复失效核心代码）
+  filterData.sort(function(a,b){
+    return b.total - a.total;
+  });
+  // 分页切片
+  const totalCount = filterData.length;
+  const maxPage = Math.ceil(totalCount / pageSize) || 1;
+  const start = (currentPage - 1) * pageSize;
+  const pageData = filterData.slice(start, start + pageSize);
+  // 清空表格
+  const tbody = document.getElementById("playerTableBody");
+  tbody.innerHTML = "";
+  // 循环生成行
+  pageData.forEach((item,idx)=>{
+    const realRank = start + idx + 1;
+    const tierInfo = getTierInfo(item.total);
+    const tr = document.createElement("tr");
+    tr.onclick = ()=>openDetail(item);
+    // 修复段位文字BUG，正确渲染段位名称
+    let html = `
+      <td>${realRank}</td>
+      <td>${item.name}</td>
+      <td class="font-bold text-white">${item.total}</td>
+      <td class="${tierInfo.cls} font-bold">${tierInfo.name}</td>
+    `;
+    MODES.forEach(m=>{
+      const t = item.modes[m];
+      const cls = t === "-" ? "tier--" : `tier-${t}`;
+      html += `<td class="${cls}">${t}</td>`
+    })
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  })
+  // 更新分页文字与按钮状态
+  document.getElementById("pageText").innerText = `第${currentPage}页 / 共${maxPage}页`;
+  document.getElementById("prevBtn").disabled = currentPage <= 1;
+  document.getElementById("nextBtn").disabled = currentPage >= maxPage;
+}
+// 绑定页面所有交互事件
+function bindEvents(){
+  document.getElementById("closeDetail").onclick = closeDetail;
+  // 搜索输入实时刷新
+  document.getElementById("searchBox").addEventListener("input",e=>{
+    searchKeyword = e.target.value;
+    currentPage = 1;
+    renderTable();
+  })
+  // 每页条数切换
+  document.getElementById("pageSizeSel").onchange = e=>{
+    pageSize = Number(e.target.value);
+    currentPage = 1;
+    renderTable();
+  }
+  // 上一页
+  document.getElementById("prevBtn").onclick = ()=>{
+    if(currentPage > 1){
+      currentPage--;
+      renderTable();
+    }
+  }
+  // 下一页
+  document.getElementById("nextBtn").onclick = ()=>{
+    currentPage++;
+    renderTable();
+  }
+}
+// 初始化执行
+bindEvents();
+renderTable();
+</script>
+</body>
+</html>

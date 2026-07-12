@@ -203,14 +203,14 @@ function calcTotal(player){
 }
 // 测试玩家数据（分数高低区分明显，方便测试排序）
 let playerList = [
-  {name:"ZeroNewbie",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"ArcherAce",modes:{Sword:"LT4",Axe:"LT4",SMP:"LT3",UHC:"LT3",Crystal:"PHT3",Mace:"LT4",Pot:"LT3",NethPot:"LT4",OPot:"LT4",OUHC:"LT4",Bedwars:"LT3",Fireball:"LT3",TopFight:"LT4",Archer:"RHT2",Sumo:"LT5",Boxing:"LT5"}},
-  {name:"PotFighter",modes:{Sword:"LT3",Axe:"LT3",SMP:"LT2",UHC:"LT2",Crystal:"PLT3",Mace:"LT3",Pot:"RHT1",NethPot:"RHT1",OPot:"HT2",OUHC:"LT2",Bedwars:"LT3",Fireball:"LT3",TopFight:"LT3",Archer:"LT4",Sumo:"LT4",Boxing:"LT4"}},
-  {name:"BedWarsNo1",modes:{Sword:"LT2",Axe:"LT3",SMP:"LT2",UHC:"LT2",Crystal:"RLT2",Mace:"LT3",Pot:"LT2",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"RHT1",Fireball:"LT2",TopFight:"LT3",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"UHC_Pro",modes:{Sword:"LT1",Axe:"LT2",SMP:"HT2",UHC:"RHT1",Crystal:"RLT1",Mace:"LT2",Pot:"LT2",NethPot:"RLT1",OPot:"LT2",OUHC:"RHT1",Bedwars:"LT2",Fireball:"LT2",TopFight:"LT3",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"SumoMain",modes:{Sword:"LT2",Axe:"LT2",SMP:"LT3",UHC:"LT3",Crystal:"RLT1",Mace:"LT2",Pot:"LT3",NethPot:"LT3",OPot:"LT4",OUHC:"LT4",Bedwars:"LT2",Fireball:"LT3",TopFight:"LT3",Archer:"LT4",Sumo:"RHT1",Boxing:"LT2"}},
-  {name:"CrystalKing66",modes:{Sword:"HT2",Axe:"LT1",SMP:"HT1",UHC:"RHT1",Crystal:"RHT1",Mace:"HT2",Pot:"LT1",NethPot:"RLT2",OPot:"LT2",OUHC:"PHT2",Bedwars:"LT1",Fireball:"LT2",TopFight:"PLT2",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"PVP_God",modes:{Sword:"RHT1",Axe:"HT1",SMP:"RHT1",UHC:"HT1",Crystal:"RHT1",Mace:"LT1",Pot:"HT2",NethPot:"HT2",OPot:"PLT1",OUHC:"PLT1",Bedwars:"HT1",Fireball:"HT1",TopFight:"PHT2",Archer:"HT3",Sumo:"HT2",Boxing:"HT2"}}
+  {name:"AustinNor",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"ArcherAce",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"PotFighter",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"BedWarsNo1",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"UHC_Pro",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"SumoMain",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"CrystalKing66",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"PVP_God",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}}
 ];
 // 分页、搜索全局变量
 let currentPage = 1;

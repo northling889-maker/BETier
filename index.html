@@ -166,6 +166,15 @@ th:nth-child(2),td:nth-child(2){text-align:left}
 // 16个模式
 const MODES = ["Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot","OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"];
 // 完整Tier分数表
+  // =====================【玩家颜色配置区 统一在这里修改】=====================
+// 格式："玩家ID": "颜色十六进制代码"
+// 需要变色的玩家只在此处添加/删除，无需改动其他渲染代码
+const PLAYER_COLOR_CONFIG = {
+  "ssa": "#36d399",
+  // 示例新增：
+  // "AustinNor": "#ffd700",
+  // "Kailyz": "#42a5f5"
+};
 const TIER_SCORE = {
   "HT1":60,"RHT1":60,
   "LT1":45,"RLT1":45,
@@ -209,10 +218,6 @@ let playerList = [
   {name:"North_Ling",modes:{Sword:"HT3",Axe:"LT3",SMP:"LT3",UHC:"LT3",Crystal:"LT2",Mace:"LT3",Pot:"LT3",NethPot:"LT3",OPot:"LT3",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"HT4",Sumo:"LT3",Boxing:"LT3"}},
   {name:"Sourth_Ling",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"HT4",Crystal:"LT3",Mace:"LT3",Pot:"HT4",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"Little_Moss",modes:{Sword:"HT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"LT3",Fireball:"LT4",TopFight:"-",Archer:"-",Sumo:"LT3",Boxing:"-"}},
-  {
-   rawName:"ssa",
-   name:"<span style='color:#36d399'>ssa</span>",
-   modes:{Sword:"LT4",Axe:"LT4",SMP:"HT4",UHC:"-",Crystal:"HT4",Mace:"LT3",Pot:"HT4",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"JustMessor85975",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"Gy_xiaofeng",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"-",Crystal:"HT4",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"Bread",modes:{Sword:"LT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
@@ -225,6 +230,7 @@ let playerList = [
   {name:"xiaolao520",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"bzndcqdr",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"-",Bedwars:"LT3",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"wttl",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"LT3",Crystal:"HT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"ssa",modes:{Sword:"LT4",Axe:"LT4",SMP:"HT4",UHC:"-",Crystal:"HT4",Mace:"LT3",Pot:"HT4",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
 ];
 // 分页、搜索全局变量
 let currentPage = 1;

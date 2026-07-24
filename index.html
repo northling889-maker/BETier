@@ -209,7 +209,7 @@ function calcTotal(player){
 // 测试玩家数据（原始数据完全保留，删除末尾多余];语法错误）
 let playerList = [
   {name:"AustinNor",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT5",UHC:"HT4",Crystal:"LT3",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"LT4",OUHC:"LT4",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"HT5",Boxing:"HT4"}},
-  {name:"TheEmberMC",modes:{Sword:"HT4",Axe:"LT3",SMP:"HT4",UHC:"HT4",Crystal:"-",Mace:"HT4",Pot:"LT3",NethPot:"LT4",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"TheEmberMC",modes:{Sword:"HT4",Axe:"LT3",SMP:"HT4",UHC:"HT4",Crystal:"-",Mace:"HT4",Pot:"LT3",NethPot:"HT4",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"Kailyz",modes:{Sword:"HT4",Axe:"LT4",SMP:"LT4",UHC:"-",Crystal:"LT4",Mace:"LT4",Pot:"LT4",NethPot:"LT4",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"renzihan",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT5",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"JiuCibuci",modes:{Sword:"LT3",Axe:"-",SMP:"HT5",UHC:"LT4",Crystal:"HT5",Mace:"HT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
@@ -225,7 +225,7 @@ let playerList = [
   {name:"mc_ttk",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"HT4",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"3y3yy3yyy",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"-",Archer:"LT3",Sumo:"-",Boxing:"-"}},
   {name:"Lan101800(封禁中)",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"China_MuZiyi233",modes:{Sword:"HT4",Axe:"LT3",SMP:"-",UHC:"LT3",Crystal:"-",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"LT4",Boxing:"HT4"}},
+  {name:"China_MuZiyi233",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT3",UHC:"LT3",Crystal:"-",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"LT4",Boxing:"HT4"}},
   {name:"Heijiajun_6767",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
   {name:"xiaolao520",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"bzndcqdr",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"LT3",Archer:"-",Sumo:"LT3",Boxing:"-"}},
@@ -233,7 +233,7 @@ let playerList = [
   {name:"<span style='color:#36d399'>ssa</span>",modes:{Sword:"LT4",Axe:"LT4",SMP:"HT4",UHC:"HT5",Crystal:"HT4",Mace:"LT3",Pot:"HT4",NethPot:"LT5",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"lan101800",modes:{Sword:"LT3",Axe:"-",SMP:"HT4",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"hm6677",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"272701",modes:{Sword:"HT4",Axe:"LT4",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"272701",modes:{Sword:"HT4",Axe:"HT5",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
   {name:"WOBUSHUAI6205",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"LT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
 ];
 // 分页、搜索全局变量

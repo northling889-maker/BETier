@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BETier | PVP Tier Rank</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        grandmaster: '#ffd700',
+        master: '#b35cff',
+        ace: '#42a5f5',
+        specialist: '#36d399',
+        cadet: '#f2ee63',
+        novice: '#ff8533',
+        rookie: '#868686',
+        bgMain: '#08080c',
+        bgCard: 'rgba(20,20,27,0.75)',
+        bgHeader: '#1a1a24',
+        borderLine: '#282836',
+        rank1: '#FFD700',
+        rank2: '#C0C0C0',
+        rank3: '#CD7F32',
+      }
+    }
+  }
+}
+</script>
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,Microsoft YaHei,sans-serif}
+body{
+  background:#08080c;
+  color:#e2e8f0;
+  /* 星空粒子背景动画 */
+  background-image:
+    radial-gradient(#1f1f2e 1px, transparent 0),
+    radial-gradient(#171720 1px, transparent 0);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  animation: starSlowMove 120s linear infinite;
+  /* 美化滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: #42a5f5 #0c0c10;
+}
+body::-webkit-scrollbar {width: 8px;height:8px}
+body::-webkit-scrollbar-thumb {background:linear-gradient(180deg,#42a5f5,#b35cff);border-radius:4px}
+body::-webkit-scrollbar-track {background:#0c0c10}
+/* 全局关键帧动画库 */
+@keyframes starSlowMove {
+  0% {background-position: 0 0, 15px 15px;}
+  100% {background-position: 600px 600px, 615px 615px;}
+}
+@keyframes shineFlow {
+  0% {background-position: 0% center;}
+  100% {background-position: 200% center;}
+}
+@keyframes pulseGlow {
+  0%,100% {filter: brightness(1);}
+  50% {filter: brightness(1.3);}
+}
+@keyframes rowFloat {
+  0%,100% {transform: translateY(0);}
+  50% {transform: translateY(-2px);}
+}
+@keyframes modalPop {
+  0% {opacity:0;transform:scale(0.9);}
+  100% {opacity:1;transform:scale(1);}
+}
+@keyframes modalClose {
+  0% {opacity:1;transform:scale(1);}
+  100% {opacity:0;transform:scale(0.9);}
+}
+/* 表格基础修复：垂直居中，固定行高基准 */
+table{border-collapse:collapse;width:100%;min-width:1400px}
+.table-wrap{overflow-x:auto}
+thead tr{background:#1a1a24;position:sticky;top:0;backdrop-filter: blur(6px);}
+th,td{
+  padding:14px 8px;
+  text-align:center;
+  font-size:14px;
+  white-space:nowrap;
+  vertical-align: middle !important; /* 核心修复：单元格垂直居中 */
+  line-height:1.4;
+}
+th:first-child,td:first-child{text-align:left}
+th:nth-child(2),td:nth-child(2){text-align:left}
+tbody tr{
+  border-top:1px solid #282836;
+  transition: all 0.25s ease;
+}
+tbody tr:hover{
+  background:rgba(28,28,40,0.9) !important;
+  cursor:pointer;
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 10px rgba(66,165,245,0.08);
+}
+
+/* 段位span通用基础 */
+.tier-tag{
+  display:inline-block;
+  border-radius:6px;
+  padding:2px 5px;
+}
+
+/* R系列段位：仅文字色，无背景无内边距 */
+.tier-RHT1,.tier-RLT1,.tier-RHT2,.tier-RLT2{
+  color:#a2d6ff;
+  font-weight:bold;
+}
+
+/* HT1 / LT1 */
+.tier-HT1{color:#e8ba3a;font-weight:bold}
+.tier-HT1 .tier-tag{background:rgba(232,186,58,0.15);}
+.tier-LT1{color:#d5b355}
+.tier-LT1 .tier-tag{background:rgba(213,179,85,0.15);}
+
+/* HT2 / LT2 */
+.tier-HT2{color:#c4d3e7;font-weight:bold}
+.tier-HT2 .tier-tag{background:rgba(196,211,231,0.15);}
+.tier-LT2{color:#a0a7b2}
+.tier-LT2 .tier-tag{background:rgba(160,167,178,0.15);}
+
+/* HT3 / LT3 */
+.tier-HT3{color:#f89f5a;font-weight:bold}
+.tier-HT3 .tier-tag{background:rgba(248,159,90,0.15);}
+.tier-LT3{color:#c67b42}
+.tier-LT3 .tier-tag{background:rgba(198,123,66,0.15);}
+
+/* HT4 / LT4 */
+.tier-HT4{color:#81749a;font-weight:bold}
+.tier-HT4 .tier-tag{background:rgba(129,116,154,0.15);}
+.tier-LT4{color:#655b79}
+.tier-LT4 .tier-tag{background:rgba(101,91,121,0.15);}
+
+/* HT5 / LT5 */
+.tier-HT5{color:#8f82a8;font-weight:bold}
+.tier-HT5 .tier-tag{background:rgba(143,130,168,0.15);}
+.tier-LT5{color:#655b79}
+.tier-LT5 .tier-tag{background:rgba(101,91,121,0.15);}
+
+/* PVP惩罚段位 */
+.tier-PLT1{color:#ff6b6b;font-weight:bold}
+.tier-PLT1 .tier-tag{background:rgba(255,107,107,0.15);}
+.tier-PHT2{color:#ff9494}
+.tier-PHT2 .tier-tag{background:rgba(255,148,148,0.15);}
+.tier-PLT2{color:#ffa8a8}
+.tier-PLT2 .tier-tag{background:rgba(255,168,168,0.15);}
+.tier-PHT3{color:#ffc2c2;font-weight:bold}
+.tier-PHT3 .tier-tag{background:rgba(255,194,194,0.15);}
+.tier-PLT3{color:#ffd8d8}
+.tier-PLT3 .tier-tag{background:rgba(255,216,216,0.15);}
+
+.tier--{color:#5a5a5a}
+
+/* 段位标题色 */
+.text-grandmaster { color: #ffd700; }
+.text-master { color: #b35cff; }
+.text-ace { color: #42a5f5; }
+.text-specialist { color: #36d399; }
+.text-cadet { color: #f2ee63; }
+.text-novice { color: #ff8533; }
+.text-rookie { color: #868686; }
+/* 前三名流光文字样式 */
+.rank-1 {
+  background: linear-gradient(90deg, #7a5100, #ffd700, #fff8b0, #ffd700, #7a5100);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 12px rgba(255,215,0,0.5);
+  animation: shineFlow 3s linear infinite, pulseGlow 2.5s ease-in-out infinite;
+}
+.rank-2 {
+  background: linear-gradient(90deg, #555555, #c0c0c0, #f8f8f8, #c0c0c0, #555555);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(192,192,192,0.4);
+  animation: shineFlow 4s linear infinite;
+}
+.rank-3 {
+  background: linear-gradient(90deg, #603a18, #cd7f32, #ffbc80, #cd7f32, #603a18);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(205,127,50,0.4);
+  animation: shineFlow 4.5s linear infinite;
+}
+/* 前三名表格行动态流光边框+呼吸底色 */
+.tr-rank1 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(255,215,0,0.08), rgba(255,215,0,0.03)) !important;
+  border-image: linear-gradient(180deg,#ffd700,#fff2b0) 1;
+  animation: pulseGlow 2.5s ease-in-out infinite, rowFloat 4s ease-in-out infinite;
+}
+.tr-rank2 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(192,192,192,0.07), rgba(192,192,192,0.02)) !important;
+  border-image: linear-gradient(180deg,#c0c0c0,#f0f0f0) 1;
+  animation: rowFloat 4.5s ease-in-out infinite;
+}
+.tr-rank3 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(205,127,50,0.07), rgba(205,127,50,0.02)) !important;
+  border-image: linear-gradient(180deg,#cd7f32,#ffbc80) 1;
+  animation: rowFloat 5s ease-in-out infinite;
+}
+/* 封禁玩家弱化 */
+.user-ban { color:#555 !important; opacity:0.65; text-decoration: line-through; }
+/* 标题持续流光扫字 */
+.main-title {
+  background: linear-gradient(90deg, #42a5f5, #ff6b6b, #b35cff, #42a5f5);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 12px rgba(66,165,245,0.4));
+  animation: shineFlow 6s linear infinite;
+}
+/* 玻璃拟态卡片通用 */
+.glass-card {
+  background: rgba(20,20,27,0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border:1px solid rgba(40,40,54,0.6);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 0 20px rgba(66,165,245,0.12);
+  transform: translateY(-2px);
+}
+/* 搜索框样式 */
+.search-input{
+  background:#1a1a24;
+  border:1px solid #282836;
+  color:#fff;
+  transition: all 0.25s ease;
+}
+.search-input:focus{
+  outline:none;
+  border-color:#42a5f5;
+  box-shadow: 0 0 0 4px rgba(66,165,245,0.18), 0 0 15px rgba(66,165,245,0.1);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+/* 弹窗基础 */
+.modal-bg{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  z-index:50;
+  display:none;
+  align-items:center;justify-content:center;padding:1rem
+}
+.modal-box{
+  width:min(95%,1100px);
+  max-height:90vh;
+  overflow-y:auto;
+  animation: modalPop 0.3s ease-out forwards;
+}
+.modal-box.closing {animation: modalClose 0.25s ease-in forwards;}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.detail-item{
+  background:#1a1a24;
+  padding:12px;border-radius:8px;word-break:break-all;
+  transition: all 0.2s;
+  border:1px solid transparent;
+}
+.detail-item:hover {
+  background:#222238;
+  border-color:#42a5f5;
+  box-shadow: 0 0 8px rgba(66,165,245,0.15);
+}
+.empty-tip{text-align:center;padding:5rem 0;color:#888;font-size:18px}
+/* 段位悬浮发光提示 */
+td[data-tier] { position: relative; }
+td[data-tier]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:12px;
+  white-space: nowrap;
+  z-index:10;
+  border:1px solid #42a5f5;
+  box-shadow: 0 0 10px rgba(66,165,245,0.2);
+}
+/* 总分高亮放大 */
+.score-num {
+  font-weight:900;
+  font-size:1.1rem;
+  background: linear-gradient(90deg,#fff,#c0e0ff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  transition: transform 0.2s;
+}
+tbody tr:hover .score-num {
+  transform: scale(1.08);
+  display:inline-block;
+}
+</style>
+</head>
+<body class="p-4 md:p-6">
+<div class="max-w-[1600px] mx-auto">
+  <div class="text-center mb-10">
+    <h1 class="text-[clamp(1.8rem,3vw,2.6rem)] font-bold mb-3 main-title">
+      <i class="fa-solid fa-crosshairs text-red-500 mr-3"></i>BETier Rank
+    </h1>
+    <p class="text-gray-400 text-lg">参与PVP段位测试：<a href="https://kook.vip/ZgLexk" target="_blank" class="text-ace hover:underline transition-all">https://kook.vip/ZgLexk</a></p>
+  </div>
+  <div class="max-w-xl mx-auto mb-8 relative glass-card p-1 rounded-lg">
+    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-lg"></i>
+    <input id="searchBox" class="search-input w-full py-4 pl-12 pr-4 rounded-lg text-base" placeholder="输入玩家ID快速搜索榜单...">
+  </div>
+  <div class="glass-card rounded-lg p-6 mb-8 border borderLine">
+    <h3 class="text-xl font-bold mb-5 text-white flex items-center gap-2">
+      <i class="fa-solid fa-ranking-star text-grandmaster"></i>段位积分分级（16模式总分综合判定）
+    </h3>
+    <div class="grid grid-cols-2 md:grid-4 lg:grid-7 gap-4 text-base">
+      <span class="text-grandmaster font-semibold">Combat GrandMaster ≥800</span>
+      <span class="text-master font-semibold">Combat Master ≥500</span>
+      <span class="text-ace font-semibold">Combat Ace ≥200</span>
+      <span class="text-specialist font-semibold">Combat Specialist ≥100</span>
+      <span class="text-cadet font-semibold">Combat Cadet ≥40</span>
+      <span class="text-novice font-semibold">Combat Novice ≥20</span>
+      <span class="text-rookie font-semibold">Rookie ≥1</span>
+    </div>
+    <div class="mt-5 text-gray-400 text-sm flex flex-wrap gap-x-3 gap-y-1">
+      <span>全部16个PVP模式：</span>
+      <span>Sword, Axe, SMP, UHC, Crystal, Mace, Pot, NethPot, OPot, OUHC, Bedwars, Fireball, TopFight, Archer, Sumo, Boxing</span>
+    </div>
+  </div>
+  <div class="table-wrap glass-card rounded-lg border borderLine mb-6">
+    <table>
+      <thead>
+        <tr>
+          <th>#Rank</th>
+          <th>玩家ID</th>
+          <th>总分</th>
+          <th>段位</th>
+          <th>Sword</th>
+          <th>Axe</th>
+          <th>SMP</th>
+          <th>UHC</th>
+          <th>Crystal</th>
+          <th>Mace</th>
+          <th>Pot</th>
+          <th>NethPot</th>
+          <th>OPot</th>
+          <th>OUHC</th>
+          <th>Bedwars</th>
+          <th>Fireball</th>
+          <th>TopFight</th>
+          <th>Archer</th>
+          <th>Sumo</th>
+          <th>Boxing</th>
+        </tr>
+      </thead>
+      <tbody id="playerTableBody"></tbody>
+    </table>
+  </div>
+</div>
+<div id="detailModal" class="modal-bg">
+  <div class="modal-box glass-card p-6 rounded-xl border borderLine">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white" id="detailName"></h2>
+      <button id="closeDetail" class="text-gray-400 text-2xl hover:text-white transition-all"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb-6 p-4 rounded-lg bg-bgHeader/60">
+      <p class="text-xl mb-2">总积分：<span id="detailTotal" class="text-3xl font-bold score-num"></span></p>
+      <p class="text-xl">段位：<span id="detailTierText" class="font-bold text-xl"></span></p>
+    </div>
+    <div class="detail-grid" id="detailGrid"></div>
+  </div>
+</div>
+<script>
+// 16个对战模式列表
+const MODES = ["Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot","OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"];
+// 玩家自定义ID配色（仅保留ssa，移除AustinNor、Kailyz）
+const PLAYER_COLOR_CONFIG = {
+  "ssa": "#36d399"
+};
+// 段位分数对照表
+const TIER_SCORE = {
+  "HT1":60,"RHT1":60,
+  "LT1":45,"RLT1":45,
+  "HT2":30,"RHT2":30,
+  "LT2":20,"RLT2":20,
+  "PLT1":50,
+  "PHT2":34,
+  "PLT2":23,
+  "PHT3":12,
+  "PLT3":7,
+  "HT3":10,"LT3":6,
+  "HT4":4,"LT4":3,
+  "HT5":2,"LT5":1,
+  "-":0
+};
+// 根据总分返回段位名称与样式类
+function getTierInfo(total){
+  if(total >= 800) return {name:"Combat GrandMaster", cls:"text-grandmaster"}
+  if(total >= 500) return {name:"Combat Master", cls:"text-master"}
+  if(total >= 200) return {name:"Combat Ace", cls:"text-ace"}
+  if(total >= 100) return {name:"Combat Specialist", cls:"text-specialist"}
+  if(total >= 40) return {name:"Combat Cadet", cls:"text-cadet"}
+  if(total >= 20) return {name:"Combat Novice", cls:"text-novice"}
+  return {name:"Rookie", cls:"text-rookie"}
+}
+// 计算玩家总积分
+function calcTotal(player){
+  let sum = 0;
+  MODES.forEach(m=>sum += TIER_SCORE[player.modes[m]])
+  return sum
+}
+// 处理玩家ID渲染
+function getPlayerNameHtml(name) {
+  if(name.includes("(封禁中)")) {
+    return `<span class="user-ban">${name}</span>`
+  }
+  if(PLAYER_COLOR_CONFIG[name]) {
+    return `<span style="color:${PLAYER_COLOR_CONFIG[name]}">${name}</span>`
+  }
+  return name;
+}
+// 玩家原始数据
+let playerList = [
+  {name:"AustinNor",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT5",UHC:"HT4",Crystal:"LT3",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"LT4",OUHC:"LT4",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"HT5",Boxing:"HT4"}},
+  {name:"TheEmberMC",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT4",UHC:"HT4",Crystal:"LT5",Mace:"HT4",Pot:"HT5",NethPot:"HT4",OPot:"HT5",OUHC:"LT5",Bedwars:"LT5",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"LT5"}},
+  {name:"Kailyz",modes:{Sword:"HT4",Axe:"LT4",SMP:"LT4",UHC:"-",Crystal:"LT4",Mace:"HT4",Pot:"LT4",NethPot:"LT4",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"renzihan",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT5",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"JiuCibuci",modes:{Sword:"LT3",Axe:"-",SMP:"HT5",UHC:"LT4",Crystal:"HT5",Mace:"HT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"Withered_Potato_",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"HT4",Crystal:"LT3",Mace:"LT3",Pot:"LT3",NethPot:"LT3",OPot:"HT4",OUHC:"LT3",Bedwars:"HT4",Fireball:"LT4",TopFight:"-",Archer:"HT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"LeuniverserASSS",modes:{Sword:"HT4",Axe:"HT4",SMP:"LT4",UHC:"HT5",Crystal:"LT4",Mace:"LT4",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"North_Ling",modes:{Sword:"RLT2",Axe:"LT3",SMP:"LT3",UHC:"LT3",Crystal:"LT2",Mace:"HT3",Pot:"LT3",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"HT4",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"Sourth_Ling",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"HT4",Crystal:"LT3",Mace:"LT3",Pot:"HT4",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"Little_Moss",modes:{Sword:"HT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"LT3",Fireball:"LT4",TopFight:"-",Archer:"-",Sumo:"LT3",Boxing:"-"}},
+  {name:"JustMessor85975",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"Gy_xiaofeng",modes:{Sword:"HT3",Axe:"LT3",SMP:"LT3",UHC:"LT4",Crystal:"HT4",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"Bread",modes:{Sword:"LT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"binjjinisd",modes:{Sword:"HT4",Axe:"LT3",SMP:"LT3",UHC:"LT3",Crystal:"LT5",Mace:"LT5",Pot:"LT4",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"mc_ttk",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"HT4",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"3y3yy3yyy",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"-",Archer:"LT3",Sumo:"-",Boxing:"-"}},
+  {name:"Lan101800(封禁中)",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"China_MuZiyi233",modes:{Sword:"LT3",Axe:"HT3",SMP:"HT3",UHC:"LT3",Crystal:"-",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"HT4",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"LT4",Boxing:"HT4"}},
+  {name:"Heijiajun_6767",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"xiaolao520",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"bzndcqdr",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"LT3",Archer:"-",Sumo:"LT3",Boxing:"-"}},
+  {name:"wttl",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"LT3",Crystal:"HT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"ssa",modes:{Sword:"LT4",Axe:"LT4",SMP:"HT4",UHC:"HT5",Crystal:"HT4",Mace:"LT3",Pot:"HT4",NethPot:"LT5",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"hm6677",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
+  {name:"272701",modes:{Sword:"HT4",Axe:"HT5",SMP:"HT5",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"WOBUSHUAI6205",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"LT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"KylieGe",modes:{Sword:"-",Axe:"LT4",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+  {name:"angry",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"HT5",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
+ 
+];
+let searchKeyword = "";
+let searchTimer = null;
+// 打开玩家详情弹窗
+function openDetail(player){
+  const total = calcTotal(player);
+  const tierInfo = getTierInfo(total);
+  document.getElementById("detailName").innerHTML = getPlayerNameHtml(player.name);
+  document.getElementById("detailTotal").innerText = total;
+  document.getElementById("detailTierText").innerText = tierInfo.name;
+  document.getElementById("detailTierText").className = tierInfo.cls + " font-bold";
+  const grid = document.getElementById("detailGrid");
+  grid.innerHTML = "";
+  MODES.forEach(m=>{
+    const t = player.modes[m];
+    const score = TIER_SCORE[t];
+    const div = document.createElement("div");
+    div.className = "detail-item";
+    let tierClass = t === "-" ? "tier--" : `tier-${t}`;
+    // 弹窗内同样用span标签
+    const tagHtml = t.startsWith("R") || t === "-" ? t : `<span class="tier-tag">${t}</span>`;
+    div.innerHTML = `<div class="text-gray-300 mb-1">${m}</div><div class="${tierClass} text-lg">${tagHtml} <span class="text-gray-500 text-sm">(${score}分)</span></div>`;
+    grid.appendChild(div);
+  })
+  document.getElementById("detailModal").style.display = "flex";
+}
+// 关闭弹窗+反向淡出动画
+function closeDetail(){
+  const box = document.querySelector(".modal-box");
+  box.classList.add("closing");
+  setTimeout(()=>{
+    document.getElementById("detailModal").style.display = "none";
+    box.classList.remove("closing");
+  },250)
+}
+// 表格渲染核心：无分页，直接渲染全部筛选后数据
+function renderTable(){
+  let fullData = playerList.map(item => ({...item, total: calcTotal(item)}));
+  let filterData = fullData.filter(item => item.name.toLowerCase().includes(searchKeyword.toLowerCase()));
+  filterData.sort((a,b)=>b.total - a.total);
+  const tbody = document.getElementById("playerTableBody");
+  tbody.innerHTML = "";
+  if(filterData.length === 0){
+    tbody.innerHTML = `<tr><td colspan="20" class="empty-tip"><i class="fa-solid fa-magnifying-glass mr-2"></i>未找到匹配玩家</td></tr>`;
+  }else{
+    filterData.forEach((item,idx)=>{
+      const realRank = idx + 1;
+      const tierInfo = getTierInfo(item.total);
+      const tr = document.createElement("tr");
+      tr.onclick = ()=>openDetail(item);
+      // 前三名行样式绑定
+      if(realRank === 1) tr.classList.add("tr-rank1");
+      if(realRank === 2) tr.classList.add("tr-rank2");
+      if(realRank === 3) tr.classList.add("tr-rank3");
+      // 排名图标+动态流光类
+      let rankIcon = "";
+      let rankClass = "";
+      if(realRank === 1) { rankIcon = '<i class="fa-solid fa-crown mr-2"></i>'; rankClass = "rank-1"; }
+      if(realRank === 2) { rankIcon = '<i class="fa-solid fa-medal mr-2"></i>'; rankClass = "rank-2"; }
+      if(realRank === 3) { rankIcon = '<i class="fa-solid fa-award mr-2"></i>'; rankClass = "rank-3"; }
+      let html = `
+        <td class="${rankClass} text-base">${rankIcon}${realRank}</td>
+        <td class="text-base">${getPlayerNameHtml(item.name)}</td>
+        <td class="score-num">${item.total}</td>
+        <td class="${tierInfo.cls} font-bold">${tierInfo.name}</td>
+      `;
+      MODES.forEach(m=>{
+        const t = item.modes[m];
+        const cls = t === "-" ? "tier--" : `tier-${t}`;
+        const tipText = t === "-" ? "无段位 0分" : `${t} = ${TIER_SCORE[t]}积分`;
+        // R等级 / 无段位不加span，普通段位套span实现圆角背景
+        const tagContent = t.startsWith("R") || t === "-" ? t : `<span class="tier-tag">${t}</span>`;
+        html += `<td class="${cls}" data-tier data-tip="${tipText}">${tagContent}</td>`
+      })
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    })
+  }
+}
+// 绑定所有交互事件（移除分页相关绑定）
+function bindEvents(){
+  document.getElementById("closeDetail").onclick = closeDetail;
+  document.getElementById("detailModal").addEventListener("click", e=>{
+    if(e.target === this) closeDetail();
+  })
+  document.addEventListener("keydown", e=>{if(e.key === "Escape") closeDetail();})
+  // 搜索防抖
+  document.getElementById("searchBox").addEventListener("input",e=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(()=>{
+      searchKeyword = e.target.value;
+      renderTable();
+    }, 200);
+  })
+}
+bindEvents();
+renderTable();
+</script>
+</body>
+</html>

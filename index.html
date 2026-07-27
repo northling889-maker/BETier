@@ -386,30 +386,34 @@ tbody tr:hover .score-num {
     <div class="detail-grid" id="detailGrid"></div>
   </div>
 </div>
-<script>
-// 16个对战模式列表
+  <script>
+// ========== 改成你的Worker地址 ==========
+const API_BASE = "https://tier-api.northling889.workers.dev";
 const MODES = ["Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot","OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"];
-// 玩家自定义ID配色（仅保留ssa，移除AustinNor、Kailyz）
-const PLAYER_COLOR_CONFIG = {
-  "ssa": "#36d399"
-};
-// 段位分数对照表
+const PLAYER_COLOR_CONFIG = {"ssa": "#36d399"};
 const TIER_SCORE = {
-  "HT1":60,"RHT1":60,
-  "LT1":45,"RLT1":45,
-  "HT2":30,"RHT2":30,
-  "LT2":20,"RLT2":20,
-  "PLT1":50,
-  "PHT2":34,
-  "PLT2":23,
-  "PHT3":12,
-  "PLT3":7,
-  "HT3":10,"LT3":6,
-  "HT4":4,"LT4":3,
-  "HT5":2,"LT5":1,
-  "-":0
+  "HT1":60,"RHT1":60,"LT1":45,"RLT1":45,"HT2":30,"RHT2":30,"LT2":20,"RLT2":20,
+  "PLT1":50,"PHT2":34,"PLT2":23,"PHT3":12,"PLT3":7,"HT3":10,"LT3":6,
+  "HT4":4,"LT4":3,"HT5":2,"LT5":1,"-":0
 };
-// 根据总分返回段位名称与样式类
+let playerList = [];
+let searchKeyword = "";
+let searchTimer = null;
+
+// 从后端D1数据库拉取全部玩家
+async function loadAllPlayers(){
+  try {
+    const res = await fetch(`${API_BASE}/api/all`);
+    if(!res.ok) throw new Error("接口请求失败");
+    playerList = await res.json();
+    renderTable();
+  } catch (err) {
+    console.error("加载玩家数据失败：", err);
+    alert("无法连接后端数据库，请检查Worker部署与D1绑定");
+  }
+}
+
+// 总分段位文字
 function getTierInfo(total){
   if(total >= 800) return {name:"Combat GrandMaster", cls:"text-grandmaster"}
   if(total >= 500) return {name:"Combat Master", cls:"text-master"}
@@ -419,57 +423,22 @@ function getTierInfo(total){
   if(total >= 20) return {name:"Combat Novice", cls:"text-novice"}
   return {name:"Rookie", cls:"text-rookie"}
 }
-// 计算玩家总积分
+
+// 计算总分（适配D1平铺字段）
 function calcTotal(player){
   let sum = 0;
-  MODES.forEach(m=>sum += TIER_SCORE[player.modes[m]])
+  MODES.forEach(m=>sum += TIER_SCORE[player[m]])
   return sum
 }
-// 处理玩家ID渲染
+
+// 玩家ID颜色/封禁渲染
 function getPlayerNameHtml(name) {
-  if(name.includes("(封禁中)")) {
-    return `<span class="user-ban">${name}</span>`
-  }
-  if(PLAYER_COLOR_CONFIG[name]) {
-    return `<span style="color:${PLAYER_COLOR_CONFIG[name]}">${name}</span>`
-  }
+  if(name.includes("(封禁中)")) return `<span class="user-ban">${name}</span>`
+  if(PLAYER_COLOR_CONFIG[name]) return `<span style="color:${PLAYER_COLOR_CONFIG[name]}">${name}</span>`
   return name;
 }
-// 玩家原始数据
-let playerList = [
-  {name:"AustinNor",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT5",UHC:"HT4",Crystal:"LT3",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"LT4",OUHC:"LT4",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"HT5",Boxing:"HT4"}},
-  {name:"TheEmberMC",modes:{Sword:"LT3",Axe:"LT3",SMP:"HT4",UHC:"HT4",Crystal:"LT5",Mace:"HT4",Pot:"HT5",NethPot:"HT4",OPot:"HT5",OUHC:"LT5",Bedwars:"LT5",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"LT5"}},
-  {name:"Kailyz",modes:{Sword:"HT4",Axe:"LT4",SMP:"LT4",UHC:"-",Crystal:"LT4",Mace:"HT4",Pot:"LT4",NethPot:"LT4",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"renzihan",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT5",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"JiuCibuci",modes:{Sword:"LT3",Axe:"-",SMP:"HT5",UHC:"LT4",Crystal:"HT5",Mace:"HT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"Withered_Potato_",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"HT4",Crystal:"LT3",Mace:"LT3",Pot:"LT3",NethPot:"LT3",OPot:"HT4",OUHC:"LT3",Bedwars:"HT4",Fireball:"LT4",TopFight:"-",Archer:"HT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"LeuniverserASSS",modes:{Sword:"HT4",Axe:"HT4",SMP:"LT4",UHC:"HT5",Crystal:"LT4",Mace:"LT4",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"North_Ling",modes:{Sword:"LT2",Axe:"LT3",SMP:"LT3",UHC:"LT3",Crystal:"LT2",Mace:"HT3",Pot:"LT3",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"HT4",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"Sourth_Ling",modes:{Sword:"LT3",Axe:"LT3",SMP:"-",UHC:"HT4",Crystal:"LT3",Mace:"LT3",Pot:"HT4",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"Little_Moss",modes:{Sword:"HT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"LT3",Fireball:"LT4",TopFight:"-",Archer:"-",Sumo:"LT3",Boxing:"-"}},
-  {name:"JustMessor85975",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"LT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"Gy_xiaofeng",modes:{Sword:"HT3",Axe:"LT3",SMP:"LT3",UHC:"LT4",Crystal:"HT4",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"Bread",modes:{Sword:"LT5",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"binjjinisd",modes:{Sword:"HT4",Axe:"LT3",SMP:"LT3",UHC:"LT3",Crystal:"LT5",Mace:"LT5",Pot:"LT4",NethPot:"LT3",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"mc_ttk",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"HT4",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"3y3yy3yyy",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"-",Archer:"LT3",Sumo:"-",Boxing:"-"}},
-  {name:"Lan101800(封禁中)",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"China_MuZiyi233",modes:{Sword:"LT3",Axe:"HT3",SMP:"HT3",UHC:"LT3",Crystal:"-",Mace:"-",Pot:"LT3",NethPot:"LT3",OPot:"HT4",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"LT4",Boxing:"HT4"}},
-  {name:"Heijiajun_6767",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"xiaolao520",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"bzndcqdr",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"-",TopFight:"LT3",Archer:"-",Sumo:"LT3",Boxing:"-"}},
-  {name:"wttl",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"LT3",Crystal:"HT3",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"ssa",modes:{Sword:"LT4",Axe:"LT4",SMP:"HT4",UHC:"HT5",Crystal:"HT4",Mace:"LT3",Pot:"HT4",NethPot:"LT5",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"hm6677",modes:{Sword:"LT3",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"LT3",OPot:"LT3",OUHC:"LT3",Bedwars:"LT3",Fireball:"LT3",TopFight:"-",Archer:"LT3",Sumo:"LT3",Boxing:"LT3"}},
-  {name:"272701",modes:{Sword:"HT4",Axe:"HT5",SMP:"HT5",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"WOBUSHUAI6205",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"-",Mace:"LT5",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"KylieGe",modes:{Sword:"-",Axe:"LT4",SMP:"-",UHC:"-",Crystal:"-",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
-  {name:"angry",modes:{Sword:"-",Axe:"-",SMP:"-",UHC:"-",Crystal:"HT5",Mace:"-",Pot:"-",NethPot:"-",OPot:"-",OUHC:"-",Bedwars:"-",Fireball:"-",TopFight:"-",Archer:"-",Sumo:"-",Boxing:"-"}},
- 
-];
-let searchKeyword = "";
-let searchTimer = null;
-// 打开玩家详情弹窗
+
+// 打开详情弹窗
 function openDetail(player){
   const total = calcTotal(player);
   const tierInfo = getTierInfo(total);
@@ -480,19 +449,18 @@ function openDetail(player){
   const grid = document.getElementById("detailGrid");
   grid.innerHTML = "";
   MODES.forEach(m=>{
-    const t = player.modes[m];
+    const t = player[m];
     const score = TIER_SCORE[t];
     const div = document.createElement("div");
     div.className = "detail-item";
     let tierClass = t === "-" ? "tier--" : `tier-${t}`;
-    // 弹窗内同样用span标签
-    const tagHtml = t.startsWith("R") || t === "-" ? t : `<span class="tier-tag">${t}</span>`;
-    div.innerHTML = `<div class="text-gray-300 mb-1">${m}</div><div class="${tierClass} text-lg">${tagHtml} <span class="text-gray-500 text-sm">(${score}分)</span></div>`;
+    div.innerHTML = `<div class="text-gray-300 mb-1">${m}</div><div class="${tierClass} text-lg">${t} <span class="text-gray-500 text-sm">(${score}分)</span></div>`;
     grid.appendChild(div);
   })
   document.getElementById("detailModal").style.display = "flex";
 }
-// 关闭弹窗+反向淡出动画
+
+// 关闭弹窗动画
 function closeDetail(){
   const box = document.querySelector(".modal-box");
   box.classList.add("closing");
@@ -501,7 +469,8 @@ function closeDetail(){
     box.classList.remove("closing");
   },250)
 }
-// 表格渲染核心：无分页，直接渲染全部筛选后数据
+
+// 渲染表格
 function renderTable(){
   let fullData = playerList.map(item => ({...item, total: calcTotal(item)}));
   let filterData = fullData.filter(item => item.name.toLowerCase().includes(searchKeyword.toLowerCase()));
@@ -516,13 +485,10 @@ function renderTable(){
       const tierInfo = getTierInfo(item.total);
       const tr = document.createElement("tr");
       tr.onclick = ()=>openDetail(item);
-      // 前三名行样式绑定
       if(realRank === 1) tr.classList.add("tr-rank1");
       if(realRank === 2) tr.classList.add("tr-rank2");
       if(realRank === 3) tr.classList.add("tr-rank3");
-      // 排名图标+动态流光类
-      let rankIcon = "";
-      let rankClass = "";
+      let rankIcon = "",rankClass = "";
       if(realRank === 1) { rankIcon = '<i class="fa-solid fa-crown mr-2"></i>'; rankClass = "rank-1"; }
       if(realRank === 2) { rankIcon = '<i class="fa-solid fa-medal mr-2"></i>'; rankClass = "rank-2"; }
       if(realRank === 3) { rankIcon = '<i class="fa-solid fa-award mr-2"></i>'; rankClass = "rank-3"; }
@@ -533,36 +499,32 @@ function renderTable(){
         <td class="${tierInfo.cls} font-bold">${tierInfo.name}</td>
       `;
       MODES.forEach(m=>{
-        const t = item.modes[m];
+        const t = item[m];
         const cls = t === "-" ? "tier--" : `tier-${t}`;
         const tipText = t === "-" ? "无段位 0分" : `${t} = ${TIER_SCORE[t]}积分`;
-        // R等级 / 无段位不加span，普通段位套span实现圆角背景
-        const tagContent = t.startsWith("R") || t === "-" ? t : `<span class="tier-tag">${t}</span>`;
-        html += `<td class="${cls}" data-tier data-tip="${tipText}">${tagContent}</td>`
+        html += `<td class="${cls}" data-tier data-tip="${tipText}">${t}</td>`
       })
       tr.innerHTML = html;
       tbody.appendChild(tr);
     })
   }
 }
-// 绑定所有交互事件（移除分页相关绑定）
+
+// 绑定页面事件
 function bindEvents(){
   document.getElementById("closeDetail").onclick = closeDetail;
-  document.getElementById("detailModal").addEventListener("click", e=>{
-    if(e.target === this) closeDetail();
-  })
-  document.addEventListener("keydown", e=>{if(e.key === "Escape") closeDetail();})
-  // 搜索防抖
-  document.getElementById("searchBox").addEventListener("input",e=>{
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(()=>{
-      searchKeyword = e.target.value;
-      renderTable();
-    }, 200);
-  })
-}
-bindEvents();
-renderTable();
-</script>
+  document.getElementById("detailModal").addEventListener("click", e=>{if(e.target === this) closeDetail();})
+   document.addEventListener("keydown", e=>{if(e.key === "Escape") closeDetail();})
+   document.getElementById("searchBox").addEventListener("input",e=>{
+     clearTimeout(searchTimer);
+     searchTimer = setTimeout(()=>{searchKeyword = e.target.value;
+       renderTable();
+     }, 200);
+   })
+ }
+ bindEvents();
+ // 页面加载自动请求后端数据库数据
+ window.onload = loadAllPlayers;
+ </script>
 </body>
 </html>

@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BETier | PVP Tier Rank</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        grandmaster: '#ffd700',
+        master: '#b35cff',
+        ace: '#42a5f5',
+        specialist: '#36d399',
+        cadet: '#f2ee63',
+        novice: '#ff8533',
+        rookie: '#868686',
+        bgMain: '#08080c',
+        bgCard: 'rgba(20,20,27,0.75)',
+        bgHeader: '#1a1a24',
+        borderLine: '#282836',
+        rank1: '#FFD700',
+        rank2: '#C0C0C0',
+        rank3: '#CD7F32',
+        modeSword: '#90cfff',
+        modeAxe: '#d49258',
+        modeSmp: '#3066d8',
+        modeUhc: '#ff4c4c',
+        modeCrystal: '#e888d8',
+        modeMace: '#c2c8d0',
+        modePot: '#ff6339',
+        modeNethPot: '#e07422',
+        modeOPot: '#ff7c66',
+        modeOUHC: '#9e2b2b',
+        modeBedwars: '#26c2b3',
+        modeFireball: '#ffb32f',
+        modeTopFight: '#67e0b7',
+        modeArcher: '#86d958',
+        modeSumo: '#a25cdd',
+        modeBoxing: '#ff4797',
+      }
+    }
+  }
+}
+</script>
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,Microsoft YaHei,sans-serif}
+body{
+  background:#08080c;
+  color:#e2e8f0;
+  background-image:
+    radial-gradient(#1f1f2e 1px, transparent 0),
+    radial-gradient(#171720 1px, transparent 0);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  animation: starSlowMove 120s linear infinite;
+  scrollbar-width: thin;
+  scrollbar-color: #42a5f5 #0c0c10;
+}
+body::-webkit-scrollbar {width: 8px;height:8px}
+body::-webkit-scrollbar-thumb {background:linear-gradient(180deg,#42a5f5,#b35cff);border-radius:4px}
+body::-webkit-scrollbar-track {background:#0c0c10}
+@keyframes starSlowMove {
+  0% {background-position: 0 0, 15px 15px;}
+  100% {background-position: 600px 600px, 615px 615px;}
+}
+@keyframes shineFlow {
+  0% {background-position: 0% center;}
+  100% {background-position: 200% center;}
+}
+@keyframes pulseGlow {
+  0%,100% {filter: brightness(1);}
+  50% {filter: brightness(1.3);}
+}
+@keyframes rowFloat {
+  0%,100% {transform: translateY(0);}
+  50% {transform: translateY(-2px);}
+}
+@keyframes modalPop {
+  0% {opacity:0;transform:scale(0.9);}
+  100% {opacity:1;transform:scale(1);}
+}
+@keyframes modalClose {
+  0% {opacity:1;transform:scale(1);}
+  100% {opacity:0;transform:scale(0.9);}
+}
+@keyframes scoreBounce {
+  0% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.18) translateY(-3px); }
+  100% { transform: scale(1.15) translateY(-2px); }
+}
+@keyframes rippleClick {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+/* 公告栏专属动画 */
+@keyframes noticeBorderFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+table{border-collapse:collapse;width:100%;min-width:1400px}
+.table-wrap{overflow-x:auto}
+thead tr{background:#1a1a24;position:sticky;top:0;backdrop-filter: blur(6px);}
+th,td{
+  padding:14px 8px;
+  text-align:center;
+  font-size:14px;
+  white-space:nowrap;
+  vertical-align: middle !important;
+  line-height:1.4;
+}
+th:first-child,td:first-child{text-align:left}
+th:nth-child(2),td:nth-child(2){text-align:left}
+tbody tr{
+  border-top:1px solid #282836;
+  transition: all 0.25s ease;
+}
+tbody tr:hover{
+  background:rgba(28,28,40,0.95) !important;
+  cursor:pointer;
+  transform: translateY(-3px) scale(1.015);
+  box-shadow:
+    0 8px 25px rgba(66,165,245,0.18),
+    inset 0 0 18px rgba(66,165,245,0.12);
+}
+.tier-tag{
+  display:inline-block;
+  border-radius:6px;
+  padding:2px 5px;
+}
+.tier-RHT1,.tier-RLT1,.tier-RHT2,.tier-RLT2{
+  color:#a2d6ff;
+  font-weight:bold;
+}
+.tier-HT1{color:#e8ba3;font-weight:bold}
+.tier-HT1 .tier-tag{background:rgba(232,186,58,0.15);}
+.tier-LT1{color:#d5b355}
+.tier-LT1 .tier-tag{background:rgba(213,179,85,0.15);}
+.tier-HT2{color:#c4d3e7;font-weight:bold}
+.tier-HT2 .tier-tag{background:rgba(196,211,231,0.15);}
+.tier-LT2{color:#a0a7b2}
+.tier-LT2 .tier-tag{background:rgba(160,167,178,0.15);}
+.tier-HT3{color:#f89f5a;font-weight:bold}
+.tier-HT3 .tier-tag{background:rgba(248,159,90,0.15);}
+.tier-LT3{color:#c67b42}
+.tier-LT3 .tier-tag{background:rgba(198,123,66,0.15);}
+.tier-HT4{color:#81749a;font-weight:bold}
+.tier-HT4 .tier-tag{background:rgba(129,116,154,0.15);}
+.tier-LT4{color:#655b79}
+.tier-LT4 .tier-tag{background:rgba(101,91,121,0.15);}
+.tier-HT5{color:#8f82a8;font-weight:bold}
+.tier-HT5 .tier-tag{background:rgba(143,130,168,0.15);}
+.tier-LT5{color:#655b79}
+.tier-LT5 .tier-tag{background:rgba(101,91,121,0.15);}
+.tier-PLT1{color:#ff6b6b;font-weight:bold}
+.tier-PLT1 .tier-tag{background:rgba(255,107,107,0.15);}
+.tier-PHT2{color:#ff9494}
+.tier-PHT2 .tier-tag{background:rgba(255,148,148,0.15);}
+.tier-PLT2{color:#ffa8a8}
+.tier-PLT2 .tier-tag{background:rgba(255,168,168,0.15);}
+.tier-PHT3{color:#ffc2c2;font-weight:bold}
+.tier-PHT3 .tier-tag{background:rgba(255,194,194,0.15);}
+.tier-PLT3{color:#ffd8d8}
+.tier-PLT3 .tier-tag{background:rgba(255,216,216,0.15);}
+.tier--{color:#5a5a5a}
+.text-grandmaster { color: #ffd700; }
+.text-master { color: #b35cff; }
+.text-ace { color: #42a5f5; }
+.text-specialist { color: #36d399; }
+.text-cadet { color: #f2ee63; }
+.text-novice { color: #ff8533; }
+.text-rookie { color: #868686; }
+.rank-1 {
+  background: linear-gradient(90deg, #7a5100, #ffd700, #fff8b0, #ffd700, #7a5100);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 12px rgba(255,215,0,0.5);
+  animation: shineFlow 3s linear infinite, pulseGlow 2.2s ease-in-out infinite;
+}
+.rank-2 {
+  background: linear-gradient(90deg, #555555, #c0c0c0, #f8f8f8, #c0c0c0, #555555);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(192,192,192,0.4);
+  animation: shineFlow 4s linear infinite, pulseGlow 2.2s ease-in-out infinite;
+}
+.rank-3 {
+  background: linear-gradient(90deg, #603a18, #cd7f32, #ffbc80, #cd7f32, #603a18);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(205,127,50,0.4);
+  animation: shineFlow 4.5s linear infinite, pulseGlow 2.2s ease-in-out infinite;
+}
+.tr-rank1 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(255,215,0,0.08), rgba(255,215,0,0.03)) !important;
+  border-image: linear-gradient(180deg,#ffd700,#fff2b0) 1;
+  animation: pulseGlow 2.2s ease-in-out infinite, rowFloat 4.5s ease-in-out infinite;
+}
+.tr-rank2 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(192,192,192,0.07), rgba(192,192,192,0.02)) !important;
+  border-image: linear-gradient(180deg,#c0c0c0,#f0f0f0) 1;
+  animation: pulseGlow 2.2s ease-in-out infinite, rowFloat 4.5s ease-in-out infinite;
+}
+.tr-rank3 {
+  border-left: 4px solid transparent !important;
+  background: linear-gradient(rgba(205,127,50,0.07), rgba(205,127,50,0.02)) !important;
+  border-image: linear-gradient(180deg,#cd7f32,#ffbc80) 1;
+  animation: pulseGlow 2.2s ease-in-out infinite, rowFloat 5s ease-in-out infinite;
+}
+.user-ban { color:#555 !important; opacity:0.65; text-decoration: line-through; }
+.main-title {
+  background: linear-gradient(90deg, #42a5f5, #ff6b6b, #b35cff, #42a5f5);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 12px rgba(66,165,245,0.4));
+  animation: shineFlow 6s linear infinite;
+  letter-spacing:0.08em;
+}
+.glass-card {
+  background: rgba(20,20,27,0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border:1px solid rgba(40,40,54,0.6);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 0 20px rgba(66,165,245,0.12);
+  transform: translateY(-2px);
+}
+.search-input{
+  background:#1a1a24;
+  border:1px solid #282836;
+  color:#fff;
+  transition: all 0.25s ease;
+}
+.search-input:focus{
+  outline:none;
+  border-color:#42a5f5;
+  box-shadow: 0 0 0 4px rgba(66,165,0.18), 0 0 15px rgba(66,165,245,0.1);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+.modal-bg{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  z-index:50;
+  display:none;
+  align-items:center;justify-content:center;padding:1rem
+}
+.modal-box{
+  width:min(95%,1100px);
+  max-height:90vh;
+  overflow-y:auto;
+  animation: modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.modal-box.closing {animation: modalClose 0.25s ease-in forwards;}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+/* 详情卡片模式主题色通用 */
+.detail-item{
+  padding:12px;border-radius:8px;word-break:break-all;
+  transition: all 0.2s;
+  border:1px solid transparent;
+}
+.detail-item.mode-Sword {background:rgba(144,207,255,0.12);border-color:#90cfff;}
+.detail-item.mode-Axe {background:rgba(212,146,88,0.12);border-color:#d49258;}
+.detail-item.mode-SMP {background:rgba(48,102,216,0.12);border-color:#3066d8;}
+.detail-item.mode-UHC {background:rgba(255,76,76,0.12);border-color:#ff4c4c;}
+.detail-item.mode-Crystal {background:rgba(232,136,216,0.12);border-color:#e888d8;}
+.detail-item.mode-Mace {background:rgba(194,200,208,0.12);border-color:#c2c8d0;}
+.detail-item.mode-Pot {background:rgba(255,99,57,0.12);border-color:#ff6339;}
+.detail-item.mode-NethPot {background:rgba(224,116,34,0.12);border-color:#e07422;}
+.detail-item.mode-OPot {background:rgba(255,124,102,0.12);border-color:#ff7c66;}
+.detail-item.mode-OUHC {background:rgba(158,43,43,0.12);border-color:#9e2b2b;}
+.detail-item.mode-Bedwars {background:rgba(38,194,179,0.12);border-color:#26c2b3;}
+.detail-item.mode-Fireball {background:rgba(255,179,47,0.12);border-color:#ffb32f;}
+.detail-item.mode-TopFight {background:rgba(103,224,183,0.12);border-color:#67e0b7;}
+.detail-item.mode-Archer {background:rgba(134,217,88,0.12);border-color:#86d958;}
+.detail-item.mode-Sumo {background:rgba(162,92,221,0.12);border-color:#a25cdd;}
+.detail-item.mode-Boxing {background:rgba(255,71,151,0.12);border-color:#ff4797;}
+.detail-item:hover {
+  filter: brightness(1.25);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+.empty-tip{text-align:center;padding:5rem 0;color:#888;font-size:18px}
+td[data-tier] { position: relative; }
+td[data-tier]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:12px;
+  white-space: nowrap;
+  z-index:10;
+  border:1px solid #42a5f5;
+  box-shadow: 0 0 10px rgba(66,165,245,0.2);
+}
+.score-num {
+  font-weight:900;
+  font-size:1.1rem;
+  background: linear-gradient(90deg,#fff,#c0e0ff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display:inline-block;
+}
+tbody tr:hover .score-num {
+  transform: scale(1.15) translateY(-2px);
+  animation: scoreBounce 0.4s ease;
+}
+/* 表格表头模式文字颜色 */
+th.mode-Sword {color:#90cfff;}
+th.mode-Axe {color:#d49258;}
+th.mode-SMP {color:#3066d8;}
+th.mode-UHC {color:#ff4c4c;}
+th.mode-Crystal {color:#e888d8;}
+th.mode-Mace {color:#c2c8d0;}
+th.mode-Pot {color:#ff6339;}
+th.mode-NethPot {color:#e07422;}
+th.mode-OPot {color:#ff7c66;}
+th.mode-OUHC {color:#9e2b2b;}
+th.mode-Bedwars {color:#26c2b3;}
+th.mode-Fireball {color:#ffb32f;}
+th.mode-TopFight {color:#67e0b7;}
+th.mode-Archer {color:#86d958;}
+th.mode-Sumo {color:#a25cdd;}
+th.mode-Boxing {color:#ff4797;}
+/* 通用按钮统一样式 全部棱角矩形美化+点击波纹 */
+.btn-edit, .btn-del, .btn-add, .btn-lock, .btn-close, .btn-save {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  border: none;
+  transition: 0.22s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.btn-edit:hover, .btn-del:hover, .btn-add:hover, .btn-lock:hover, .btn-close:hover, .btn-save:hover {
+  transform: translateY(-2px);
+}
+.btn-edit:active, .btn-del:active, .btn-add:active, .btn-lock:active, .btn-close:active, .btn-save:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.btn-edit::after, .btn-del::after, .btn-add::after, .btn-lock::after, .btn-close::after, .btn-save::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.btn-edit:active::after, .btn-del:active::after, .btn-add:active::after, .btn-lock:active::after, .btn-close:active::after, .btn-save:active::after {
+  opacity: 1;
+  animation: rippleClick 0.4s ease-out forwards;
+}
+/* 各按钮单独配色渐变 */
+.btn-lock{
+  background:linear-gradient(135deg,#fbbf24,#f59e0b,#d97706);
+  color:#111827;
+  box-shadow:0 4px 14px rgba(245,158,11,0.25);
+}
+.btn-lock:hover{
+  box-shadow:0 6px 18px rgba(245,158,11,0.35);
+}
+.btn-lock:active{
+  box-shadow:0 3px 10px rgba(245,158,11,0.2);
+}
+.btn-add{
+  background:linear-gradient(135deg,#4ade80,#22c55e,#16a34a);
+  color:#0f2e1a;
+  box-shadow:0 4px 14px rgba(34,197,94,0.25);
+}
+.btn-add:hover{
+  box-shadow:0 6px 18px rgba(34,197,94,0.35);
+}
+.btn-add:active{
+  box-shadow:0 3px 10px rgba(34,197,94,0.2);
+}
+.btn-save{
+  background:linear-gradient(135deg,#60a5fa,#2563eb,#1d4ed8);
+  color:#ffffff;
+  box-shadow:0 4px 14px rgba(37,99,235,0.25);
+}
+.btn-save:hover{
+  box-shadow:0 6px 18px rgba(37,99,235,0.35);
+}
+.btn-save:active{
+  box-shadow:0 3px 10px rgba(37,99,235,0.2);
+}
+.btn-close{
+  background:linear-gradient(135deg,#6b7280,#4b5563,#374151);
+  color:#ffffff;
+  box-shadow:0 4px 14px rgba(75,85,99,0.2);
+}
+.btn-close:hover{
+  box-shadow:0 6px 18px rgba(75,85,99,0.3);
+}
+.btn-close:active{
+  box-shadow:0 3px 10px rgba(75,85,99,0.15);
+}
+.btn-edit{
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9,#0284c7);
+  color:#ffffff;
+  box-shadow:0 4px 14px rgba(14,165,233,0.25);
+}
+.btn-edit:hover{
+  box-shadow:0 6px 18px rgba(14,165,233,0.35);
+}
+.btn-edit:active{
+  box-shadow:0 3px 10px rgba(14,165,233,0.2);
+}
+.btn-del{
+  background:linear-gradient(135deg,#f87171,#ef4444,#dc2626);
+  color:#ffffff;
+  box-shadow:0 4px 14px rgba(239,68,68,0.25);
+}
+.btn-del:hover{
+  box-shadow:0 6px 18px rgba(239,68,68,0.35);
+}
+.btn-del:active{
+  box-shadow:0 3px 10px rgba(239,68,68,0.2);
+}
+.color-preview{
+  width:28px;height:28px;border-radius:4px;border:1px solid #444;display:inline-block;vertical-align:middle;margin-left:8px;
+}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.form-item label{display:block;margin-bottom:4px;font-size:13px;color:#ccc}
+.form-item input,.form-item select{
+  width:100%;
+  background:#12121a;
+  border:1px solid #282836;
+  color:#fff;
+  padding:6px 8px;
+  border-radius:4px;
+}
+.form-item input:focus,.form-item select:focus{
+  outline:none;
+  border-color:#42a5f5
+}
+.operate-col{width:160px}
+.header-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+
+/* 公告栏样式 */
+.notice-wrap {
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 1px;
+  border-radius: 12px;
+  background: linear-gradient(90deg,#42a5f5,#b35cff,#ff6b6b,#42a5f5);
+  background-size: 200% 200%;
+  animation: noticeBorderFlow 6s linear infinite;
+}
+.notice-box {
+  border-radius: 11px;
+  padding: 1rem 1.25rem;
+  background: rgba(20,20,27,0.9);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.notice-icon {
+  color: #ffd700;
+  font-size: 1.3rem;
+  margin-top: 0.15rem;
+}
+.notice-text {
+  flex: 1;
+  line-height: 1.6;
+}
+.notice-title {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+.notice-content {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+</style>
+</head>
+<body class="p-4 md:p-6">
+<div class="max-w-[1600px] mx-auto">
+  <div class="header-bar text-center mb-10">
+    <div>
+      <h1 class="text-[clamp(2.2rem,4.5vw,3.4rem)] font-bold mb-3 main-title tracking-wide">
+      <i class="fa-solid fa-crosshairs text-red-500 mr-3"></i>BETier Rank
+      </h1>
+      <p class="text-gray-400 text-lg">参与PVP段位测试：<a href="https://kook.vip/ZgLexk" target="_blank" class="text-ace hover:underline transition-all">https://kook.vip/ZgLexk</a></p>
+    </div>
+    <div>
+      <button id="openAdminPwdBtn" class="btn-lock"><i class="fa-solid fa-user-pen mr-2"></i>编辑玩家</button>
+      <button id="addPlayerBtn" class="btn-add hidden ml-3"><i class="fa-solid fa-plus mr-2"></i>新增玩家</button>
+      <span id="adminTip" class="text-green-400 hidden ml-3">✅ 已解锁管理员权限</span>
+    </div>
+  </div>
+
+  <!-- 公告栏（无关闭按钮，永久展示） -->
+  <div id="noticeWrap" class="notice-wrap">
+    <div class="notice-box">
+      <div class="notice-icon">
+        <i class="fa-solid fa-bullhorn"></i>
+      </div>
+      <div class="notice-text">
+        <div class="notice-title">系统公告</div>
+        <div class="notice-content">
+          当前榜单实时同步所有模式段位积分，总分≥800可晋升Combat GrandMaster；如需新增/修改玩家数据请联系管理员获取操作密码。若发现数据错误可前往KOOK反馈更新。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-xl mx-auto mb-8 relative glass-card p-1 rounded-lg">
+    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-lg"></i>
+    <input id="searchBox" class="search-input w-full py-4 pl-12 pr-4 rounded-lg text-base" placeholder="输入玩家ID快速搜索榜单...">
+  </div>
+  <div class="glass-card rounded-lg p-6 mb-8 border borderLine">
+    <h3 class="text-xl font-bold mb-5 text-white flex items-center gap-2">
+      <i class="fa-solid fa-ranking-star text-grandmaster"></i>段位积分分级（16模式总分综合判定）
+    </h3>
+    <div class="grid grid-cols-2 md:grid-4 lg:grid-7 gap-4 text-base">
+      <span class="text-grandmaster font-semibold">Combat GrandMaster ≥800</span>
+      <span class="text-master font-semibold">Combat Master ≥500</span>
+      <span class="text-ace font-semibold">Combat Ace ≥200</span>
+      <span class="text-specialist font-semibold">Combat Specialist ≥100</span>
+      <span class="text-cadet font-semibold">Combat Cadet ≥40</span>
+      <span class="text-novice font-semibold">Combat Novice ≥20</span>
+      <span class="text-rookie font-semibold">Rookie ≥1</span>
+    </div>
+    <div class="mt-5 text-gray-400 text-sm flex flex-wrap gap-x-3 gap-y-1">
+      <span>全部16个PVP模式：</span>
+      <span>Sword, Axe, SMP, UHC, Crystal, Mace, Pot, NethPot, OPot, OUHC, Bedwars, Fireball, TopFight, Archer, Sumo, Boxing</span>
+    </div>
+  </div>
+  <div class="table-wrap glass-card rounded-lg border borderLine mb-6">
+    <table>
+      <thead>
+        <tr>
+          <th>#Rank</th>
+          <th>玩家ID</th>
+          <th>总分</th>
+          <th>段位</th>
+          <th class="mode-Sword">Sword</th>
+          <th class="mode-Axe">Axe</th>
+          <th class="mode-SMP">SMP</th>
+          <th class="mode-UHC">UHC</th>
+          <th class="mode-Crystal">Crystal</th>
+          <th class="mode-Mace">Mace</th>
+          <th class="mode-Pot">Pot</th>
+          <th class="mode-NethPot">NethPot</th>
+          <th class="mode-OPot">OPot</th>
+          <th class="mode-OUHC">OUHC</th>
+          <th class="mode-Bedwars">Bedwars</th>
+          <th class="mode-Fireball">Fireball</th>
+          <th class="mode-TopFight">TopFight</th>
+          <th class="mode-Archer">Archer</th>
+          <th class="mode-Sumo">Sumo</th>
+          <th class="mode-Boxing">Boxing</th>
+        </tr>
+      </thead>
+      <tbody id="playerTableBody">
+        <tr><td colspan="20" class="empty-tip">正在从数据库加载玩家数据...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- 管理员密码弹窗 -->
+<div id="adminPwdModal" class="modal-bg">
+  <div class="modal-box glass-card p-6 rounded-xl border borderLine w-full max-w-md">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white">管理员验证</h2>
+      <button id="closeAdminPwdModal" class="text-gray-400 text-2xl hover:text-white transition-all"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="form-item mb-6">
+      <label>请输入管理员密码</label>
+      <input id="adminPwdInput" class="search-input py-3 px-4 rounded w-full" placeholder="管理员密码" type="password">
+    </div>
+    <div class="flex gap-3 justify-end">
+      <button id="cancelAdminPwd" class="btn-close">取消</button>
+      <button id="confirmAdminPwd" class="btn-lock">验证解锁</button>
+    </div>
+  </div>
+</div>
+<!-- 详情弹窗 -->
+<div id="detailModal" class="modal-bg">
+  <div class="modal-box glass-card p-6 rounded-xl border borderLine">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white" id="detailName"></h2>
+      <button id="closeDetail" class="text-gray-400 text-2xl hover:text-white transition-all"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb-6 p-4 rounded-lg bg-bgHeader/60">
+      <p class="text-xl mb-2">总积分：<span id="detailTotal" class="text-3xl font-bold score-num"></span></p>
+      <p class="text-xl">段位：<span id="detailTierText" class="font-bold text-xl"></span></p>
+    </div>
+    <div class="detail-grid mb-6" id="detailGrid"></div>
+    <!-- 管理员操作按钮，仅解锁后显示 -->
+    <div id="detailAdminBtns" class="hidden flex gap-3 justify-end border-t borderLine pt-4 mt-4">
+      <button id="detailEditBtn" class="btn-edit"><i class="fa-solid fa-pen mr-1"></i>编辑玩家</button>
+      <button id="detailDelBtn" class="btn-del"><i class="fa-solid fa-trash mr-1"></i>删除玩家</button>
+    </div>
+  </div>
+</div>
+<!-- 新增/编辑玩家弹窗 -->
+<div id="editModal" class="modal-bg">
+  <div class="modal-box glass-card p-6 rounded-xl border borderLine">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white" id="editModalTitle">新增玩家</h2>
+      <button id="closeEditModal" class="text-gray-400 text-2xl hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="playerEditForm">
+      <input type="hidden" id="editId">
+      <div class="form-item mb-4">
+        <label>玩家名称</label>
+        <input type="text" id="form_name" required placeholder="玩家ID，带(封禁中)标记">
+      </div>
+      <!-- 自定义名称颜色 -->
+      <div class="form-item mb-4 flex items-center">
+        <label class="w-32">自定义名称色值(十六进制)</label>
+        <input type="text" id="form_color" placeholder="#36d399，留空默认" class="flex-1">
+        <span class="color-preview" id="colorPreview"></span>
+      </div>
+      <div class="form-grid mb-6">
+        <div class="form-item">
+          <label>Sword</label>
+          <select id="form_Sword"></select>
+        </div>
+        <div class="form-item">
+          <label>Axe</label>
+          <select id="form_Axe"></select>
+        </div>
+        <div class="form-item">
+          <label>SMP</label>
+          <select id="form_SMP"></select>
+        </div>
+        <div class="form-item">
+          <label>UHC</label>
+          <select id="form_UHC"></select>
+        </div>
+        <div class="form-item">
+          <label>Crystal</label>
+          <select id="form_Crystal"></select>
+        </div>
+        <div class="form-item">
+          <label>Mace</label>
+          <select id="form_Mace"></select>
+        </div>
+        <div class="form-item">
+          <label>Pot</label>
+          <select id="form_Pot"></select>
+        </div>
+        <div class="form-item">
+          <label>NethPot</label>
+          <select id="form_NethPot"></select>
+        </div>
+        <div class="form-item">
+          <label>OPot</label>
+          <select id="form_OPot"></select>
+        </div>
+        <div class="form-item">
+          <label>OUHC</label>
+          <select id="form_OUHC"></select>
+        </div>
+        <div class="form-item">
+          <label>Bedwars</label>
+          <select id="form_Bedwars"></select>
+        </div>
+        <div class="form-item">
+          <label>Fireball</label>
+          <select id="form_Fireball"></select>
+        </div>
+        <div class="form-item">
+          <label>TopFight</label>
+          <select id="form_TopFight"></select>
+        </div>
+        <div class="form-item">
+          <label>Archer</label>
+          <select id="form_Archer"></select>
+        </div>
+        <div class="form-item">
+          <label>Sumo</label>
+          <select id="form_Sumo"></select>
+        </div>
+        <div class="form-item">
+          <label>Boxing</label>
+          <select id="form_Boxing"></select>
+        </div>
+      </div>
+      <div class="flex gap-3 justify-end">
+        <button type="button" id="cancelEdit" class="btn-close">取消</button>
+        <button type="submit" class="btn-save">保存数据</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+// ================= 配置项 =================
+const API_BASE = "https://betierapi.ccwu.cc";
+const ADMIN_PASSWORD = "1q2w3e4r5t6y";
+const MODES = ["Sword","Axe","SMP","UHC","Crystal","Mace","Pot","NethPot","OPot","OUHC","Bedwars","Fireball","TopFight","Archer","Sumo","Boxing"];
+// 模式对应颜色类名
+const MODE_COLOR_CLASS = {
+  "Sword": "mode-Sword",
+  "Axe": "mode-Axe",
+  "SMP": "mode-SMP",
+  "UHC": "mode-UHC",
+  "Crystal": "mode-Crystal",
+  "Mace": "mode-Mace",
+  "Pot": "mode-Pot",
+  "NethPot": "mode-NethPot",
+  "OPot": "mode-OPot",
+  "OUHC": "mode-OUHC",
+  "Bedwars": "mode-Bedwars",
+  "Fireball": "mode-Fireball",
+  "TopFight": "mode-TopFight",
+  "Archer": "mode-Archer",
+  "Sumo": "mode-Sumo",
+  "Boxing": "mode-Boxing",
+};
+// 全部合法Tier列表，用于下拉生成
+const ALL_TIERS = [
+  "-",
+  "RHT1","RLT1","HT1","LT1",
+  "RHT2","RLT2","HT2","LT2",
+  "PLT1","PHT2","PLT2","PHT3","PLT3",
+  "HT3","LT3","HT4","LT4","HT5","LT5"
+];
+const TIER_SCORE = {
+  "HT1":60,"RHT1":60,"LT1":45,"RLT1":45,"HT2":30,"RHT2":30,"LT2":20,"RLT2":20,
+  "PLT1":50,"PHT2":34,"PLT2":23,"PHT3":12,"PLT3":7,"HT3":10,"LT3":6,
+  "HT4":4,"LT4":3,"HT5":2,"LT5":1,"-":0
+};
+let playerList = [];
+let searchKeyword = "";
+let searchTimer = null;
+let isAdmin = false;
+let currentViewPlayer = null;
+// DOM缓存
+const openAdminPwdBtn = document.getElementById("openAdminPwdBtn");
+const adminPwdModal = document.getElementById("adminPwdModal");
+const adminPwdInput = document.getElementById("adminPwdInput");
+const closeAdminPwdModal = document.getElementById("closeAdminPwdModal");
+const cancelAdminPwd = document.getElementById("cancelAdminPwd");
+const confirmAdminPwd = document.getElementById("confirmAdminPwd");
+const addPlayerBtn = document.getElementById("addPlayerBtn");
+const adminTip = document.getElementById("adminTip");
+const editModal = document.getElementById("editModal");
+const editModalTitle = document.getElementById("editModalTitle");
+const closeEditModal = document.getElementById("closeEditModal");
+const cancelEdit = document.getElementById("cancelEdit");
+const playerEditForm = document.getElementById("playerEditForm");
+const editIdInput = document.getElementById("editId");
+const formColorInput = document.getElementById("form_color");
+const colorPreviewDom = document.getElementById("colorPreview");
+const detailAdminBtns = document.getElementById("detailAdminBtns");
+const detailEditBtn = document.getElementById("detailEditBtn");
+const detailDelBtn = document.getElementById("detailDelBtn");
+
+// 初始化所有Tier下拉选择框
+function initTierSelects(){
+  MODES.forEach(m=>{
+    const sel = document.getElementById(`form_${m}`);
+    sel.innerHTML = "";
+    ALL_TIERS.forEach(t=>{
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.innerText = t;
+      sel.appendChild(opt);
+    })
+  })
+}
+// 更新颜色预览块
+function updateColorPreview(){
+  const val = formColorInput.value.trim();
+  if(/^#[0-9a-fA-F]{6}$/.test(val)){
+    colorPreviewDom.style.background = val;
+  }else{
+    colorPreviewDom.style.background = "transparent";
+  }
+}
+// 加载全部玩家
+async function loadAllPlayers(){
+  try {
+    const res = await fetch(`${API_BASE}/api/all`);
+    if(!res.ok) throw new Error("接口请求失败");
+    playerList = await res.json();
+    renderTable();
+  } catch (err) {
+    console.error("加载玩家数据失败：", err);
+    alert("无法连接后端数据库，请检查Worker部署与D1绑定");
+  }
+}
+// 段位总分文字
+function getTierInfo(total){
+  if(total >= 800) return {name:"Combat GrandMaster", cls:"text-grandmaster"}
+  if(total >= 500) return {name:"Combat Master", cls:"text-master"}
+  if(total >= 200) return {name:"Combat Ace", cls:"text-ace"}
+  if(total >= 100) return {name:"Combat Specialist", cls:"text-specialist"}
+  if(total >= 40) return {name:"Combat Cadet", cls:"text-cadet"}
+  if(total >= 20) return {name:"Combat Novice", cls:"text-novice"}
+  return {name:"Rookie", cls:"text-rookie"}
+}
+// 计算总分
+function calcTotal(player){
+  let sum = 0;
+  MODES.forEach(m=>sum += TIER_SCORE[player[m]] ?? 0)
+  return sum
+}
+// 玩家名称渲染（优先读取玩家自定义颜色）
+function getPlayerNameHtml(player) {
+  const {name, color} = player;
+  if(name.includes("(封禁中)")) return `<span class="user-ban">${name}</span>`
+  if(color && /^#[0-9a-fA-F]{6}$/.test(color)) return `<span style="color:${color}">${name}</span>`
+  return name;
+}
+// 打开密码弹窗
+function openAdminPwdModal(){
+  adminPwdModal.style.display = "flex";
+  adminPwdInput.value = "";
+}
+// 关闭密码弹窗
+function closeAdminPwdModalFn(){
+  const box = adminPwdModal.querySelector(".modal-box");
+  box.classList.add("closing");
+  setTimeout(()=>{
+    adminPwdModal.style.display = "none";
+    box.classList.remove("closing");
+  },250)
+}
+// 验证管理员密码
+function verifyAdminPwd(){
+  const pwd = adminPwdInput.value.trim();
+  if(pwd === ADMIN_PASSWORD){
+    isAdmin = true;
+    addPlayerBtn.classList.remove("hidden");
+    adminTip.classList.remove("hidden");
+    closeAdminPwdModalFn();
+    renderTable();
+    alert("管理员权限已解锁");
+  }else{
+    alert("密码错误");
+  }
+}
+// 打开详情弹窗（增加模式卡片主题色）
+function openDetail(player){
+  currentViewPlayer = player;
+  const total = calcTotal(player);
+  const tierInfo = getTierInfo(total);
+  document.getElementById("detailName").innerHTML = getPlayerNameHtml(player);
+  document.getElementById("detailTotal").innerText = total;
+  document.getElementById("detailTierText").innerText = tierInfo.name;
+  document.getElementById("detailTierText").className = tierInfo.cls + " font-bold";
+  const grid = document.getElementById("detailGrid");
+  grid.innerHTML = "";
+  MODES.forEach(m=>{
+    const t = player[m] ?? "-";
+    const score = TIER_SCORE[t] ?? 0;
+    const div = document.createElement("div");
+    div.className = `detail-item ${MODE_COLOR_CLASS[m]}`;
+    div.innerHTML = `
+      <div class="text-gray-200 mb-1 font-semibold">${m}</div>
+      <div class="text-lg">${t} <span class="text-gray-400 text-sm">(${score}分)</span></div>
+    `;
+    grid.appendChild(div);
+  })
+  // 管理员按钮
+  if(isAdmin){
+    detailAdminBtns.classList.remove("hidden");
+  }else{
+    detailAdminBtns.classList.add("hidden");
+  }
+  document.getElementById("detailModal").style.display = "flex";
+}
+// 关闭详情弹窗
+function closeDetail(){
+  const box = document.querySelector("#detailModal .modal-box");
+  box.classList.add("closing");
+  setTimeout(()=>{
+    document.getElementById("detailModal").style.display = "none";
+    box.classList.remove("closing");
+  },250)
+}
+// 打开编辑弹窗（新增/编辑共用）
+function openEditModal(player = null){
+  editModal.style.display = "flex";
+  const form = playerEditForm;
+  form.reset();
+  updateColorPreview();
+  if(player){
+    editModalTitle.innerText = "编辑玩家";
+    editIdInput.value = player.id;
+    document.getElementById("form_name").value = player.name ?? "";
+    formColorInput.value = player.color ?? "";
+    updateColorPreview();
+    MODES.forEach(m=>{
+      const sel = document.getElementById(`form_${m}`);
+      sel.value = player[m] ?? "-";
+    })
+  }else{
+    editModalTitle.innerText = "新增玩家";
+    editIdInput.value = "";
+    formColorInput.value = "";
+    updateColorPreview();
+    MODES.forEach(m=>{
+      document.getElementById(`form_${m}`).value = "-";
+    })
+  }
+}
+// 关闭编辑弹窗
+function closeEditModalFn(){
+  const box = document.querySelector("#editModal .modal-box");
+  box.classList.add("closing");
+  setTimeout(()=>{
+    editModal.style.display = "none";
+    box.classList.remove("closing");
+  },250)
+}
+// 提交表单：新增 / 更新
+async function submitPlayerForm(e){
+  e.preventDefault();
+  const editId = editIdInput.value;
+  const data = {
+    name: document.getElementById("form_name").value.trim(),
+    color: formColorInput.value.trim()
+  };
+  MODES.forEach(m=>{
+    data[m] = document.getElementById(`form_${m}`).value;
+  })
+  try{
+    if(!editId){
+      await fetch(`${API_BASE}/api`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+      })
+    }else{
+      data.id = editId;
+      await fetch(`${API_BASE}/api`,{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+      })
+    }
+    closeEditModalFn();
+    await loadAllPlayers();
+    alert("操作成功！");
+  }catch(err){
+    console.error(err);
+    alert("操作失败："+err.message);
+  }
+}
+// 删除玩家
+async function deletePlayer(id,name){
+  if(!confirm(`确定删除玩家【${name}】？删除后无法恢复！`)) return;
+  try{
+    await fetch(`${API_BASE}/api?name=${name}`,{method:"DELETE"});
+    closeDetail();
+    await loadAllPlayers();
+    alert("删除成功");
+  }catch(err){
+    alert("删除失败："+err.message);
+  }
+}
+// 渲染表格（表头上色，无操作列）
+function renderTable(){
+  let fullData = playerList.map(item => ({...item, total: calcTotal(item)}));
+  let filterData = fullData.filter(item => item.name.toLowerCase().includes(searchKeyword.toLowerCase()));
+  filterData.sort((a,b)=>b.total - a.total);
+  const tbody = document.getElementById("playerTableBody");
+  tbody.innerHTML = "";
+  if(filterData.length === 0){
+    tbody.innerHTML = `<tr><td colspan="20" class="empty-tip"><i class="fa-solid fa-magnifying-glass mr-2"></i>未找到匹配玩家</td></tr>`;
+    return;
+  }
+  filterData.forEach((item,idx)=>{
+    const realRank = idx + 1;
+    const tierInfo = getTierInfo(item.total);
+    const tr = document.createElement("tr");
+    tr.onclick = ()=>openDetail(item);
+    if(realRank === 1) tr.classList.add("tr-rank1");
+    if(realRank === 2) tr.classList.add("tr-rank2");
+    if(realRank === 3) tr.classList.add("tr-rank3");
+    let rankIcon = "",rankClass = "";
+    if(realRank === 1) { rankIcon = '<i class="fa-solid fa-crown mr-2"></i>'; rankClass = "rank-1"; }
+    if(realRank === 2) { rankIcon = '<i class="fa-solid fa-medal mr-2"></i>'; rankClass = "rank-2"; }
+    if(realRank === 3) { rankIcon = '<i class="fa-solid fa-award mr-2"></i>'; rankClass = "rank-3"; }
+    let html = `
+      <td class="${rankClass} text-base">${rankIcon}${realRank}</td>
+      <td class="text-base">${getPlayerNameHtml(item)}</td>
+      <td class="score-num">${item.total}</td>
+      <td class="${tierInfo.cls} font-bold">${tierInfo.name}</td>
+    `;
+    MODES.forEach(m=>{
+      const t = item[m] ?? "-";
+      const cls = t === "-" ? "tier--" : `tier-${t}`;
+      const tipText = t === "-" ? "无段位 0分" : `${t} = ${TIER_SCORE[t]}积分`;
+      html += `<td class="${cls}" data-tier data-tip="${tipText}">${t}</td>`
+    })
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  })
+}
+// 绑定页面事件
+function bindEvents(){
+  initTierSelects();
+  formColorInput.addEventListener("input", updateColorPreview);
+  openAdminPwdBtn.onclick = openAdminPwdModal;
+  closeAdminPwdModal.onclick = closeAdminPwdModalFn;
+  cancelAdminPwd.onclick = closeAdminPwdModalFn;
+  adminPwdModal.addEventListener("click",e=>{if(e.target === adminPwdModal) closeAdminPwdModalFn()})
+  confirmAdminPwd.onclick = verifyAdminPwd;
+  addPlayerBtn.onclick = ()=> openEditModal(null);
+  detailEditBtn.onclick = ()=>{
+    closeDetail();
+    openEditModal(currentViewPlayer);
+  }
+  detailDelBtn.onclick = ()=>{
+    deletePlayer(currentViewPlayer.id, currentViewPlayer.name);
+  }
+  document.getElementById("closeDetail").onclick = closeDetail;
+  document.getElementById("detailModal").addEventListener("click", e=>{if(e.target === e.currentTarget) closeDetail();})
+  closeEditModal.onclick = closeEditModalFn;
+  cancelEdit.onclick = closeEditModalFn;
+  editModal.addEventListener("click",e=>{if(e.target === editModal) closeEditModalFn()})
+  playerEditForm.onsubmit = submitPlayerForm;
+  document.addEventListener("keydown", e=>{
+    if(e.key === "Escape"){
+      closeDetail();
+      closeEditModalFn();
+      closeAdminPwdModalFn();
+    }
+  })
+  document.getElementById("searchBox").addEventListener("input",e=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(()=>{
+      searchKeyword = e.target.value;
+      renderTable();
+    }, 200);
+  })
+}
+bindEvents();
+document.addEventListener('DOMContentLoaded', loadAllPlayers);
+</script>
+</body>
+</html>

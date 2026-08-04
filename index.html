@@ -845,14 +845,15 @@ function updateColorPreview(){
   }
 }
 // 加载全部玩家
-async function loadAllPlayers(){
+// 正确请求代码
+async function loadRank() {
   try {
-    const res = await fetch(`${API_BASE}/api/all`);
-    if(!res.ok) throw new Error("接口请求失败");
-    playerList = await res.json();
-    renderTable();
+    const res = await fetch("https://betierapi.ccwu.cc/api/all");
+    if (!res.ok) throw new Error("接口请求失败");
+    const data = await res.json();
+    renderTable(data.data); // 渲染榜单
   } catch (err) {
-    console.error("加载玩家数据失败：", err);
+    // 弹窗提示（你页面现在弹出的提示）
     alert("无法连接后端数据库，请检查Worker部署与D1绑定");
   }
 }

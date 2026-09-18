@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BETier - Rankings</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script>
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        extend: {
+            colors: {
+                background: '#10161d', foreground: '#f9fafb',
+                card: '#121822', 'card-foreground': '#f9fafb',
+                popover: '#121822', 'popover-foreground': '#f9fafb',
+                primary: '#e5e7eb', 'primary-foreground': '#101828',
+                secondary: '#1e2939', 'secondary-foreground': '#f9fafb',
+                muted: '#222a38', 'muted-foreground': '#99a1af',
+                accent: '#1e2939', 'accent-foreground': '#f9fafb',
+                destructive: '#ff6568', border: '#18202a',
+                input: '#9bbbf526', ring: '#6a7282',
+            }
+        }
+    }
+}
+</script>
+<style>
+@font-face {
+    font-family: GeistSans;
+    src: url("https://mctiers.com/_next/static/media/Geist_Variable-s.p.f19e4721.woff2") format("woff2");
+    font-display: swap; font-weight: 100 900;
+}
+@font-face {
+    font-family: "GeistSans Fallback";
+    src: local("Arial");
+    ascent-override: 85.83%; descent-override: 20.53%;
+    line-gap-override: 9.33%; size-adjust: 107.19%;
+}
+:root {
+    --ht1: #6d5d2c; --ht1-foreground: #e8ba3a;
+    --lt1: #584c25; --lt1-foreground: #d5b355;
+    --ht2: #5e6979; --ht2-foreground: #c4d3e7;
+    --lt2: #4a505a; --lt2-foreground: #a0a7b2;
+    --ht3: #6b4b36; --ht3-foreground: #f89f5a;
+    --lt3: #593722; --lt3-foreground: #c67b42;
+    --ht4: #303144; --ht4-foreground: #81749a;
+    --lt4: #2c2e40; --lt4-foreground: #655b79;
+    --ht5: #2b2c3d; --ht5-foreground: #8f82a8;
+    --lt5: #262a3a; --lt5-foreground: #655b79;
+    --placement-other: #1e2634;
+    --retired: #2e2e36;
+    --retired-foreground: #9a9aa8;
+    --retired-main-bg: #1a1e26;
+    --retired-main-border: #262c36;
+    --p-tier: #7a1a1a;
+    --p-tier-foreground: #ff6b6b;
+}
+html, body {
+    overflow-x: hidden !important;
+    color: #fff;
+    font-family: GeistSans, "GeistSans Fallback", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background-color: #10161d;
+}
+::-webkit-scrollbar { background-color: #10161d; width: 3.5px; height: 4px; }
+::-webkit-scrollbar-thumb { background-color: #869aaf; border-radius: 100rem; }
+
+.tier-tab-link { flex: 0 0 auto; text-decoration: none; }
+.tier-tab-span {
+    width: 7.5rem; height: fit-content;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    text-wrap: nowrap; position: relative;
+    border-radius: 1.25rem 1.25rem 0 0;
+    border: 2px solid #18202a; border-bottom: none;
+    padding: 0.3rem 1.75rem 0;
+    transition: 0.1s;
+    color: rgba(153, 161, 175, 0.4);
+    background: transparent; cursor: pointer;
+}
+.tier-tab-span img {
+    width: 30px; height: 30px; object-fit: contain;
+    filter: grayscale(0.6) brightness(0.7);
+    transition: 0.15s;
+}
+.tier-tab-span strong { text-transform: capitalize; font-weight: 700; font-size: 0.95rem; margin-top: 2px; padding-bottom: 4px; }
+.tier-tab-link:hover .tier-tab-span { background: rgba(30, 41, 57, 0.5); color: #f9fafb; }
+.tier-tab-link:hover .tier-tab-span img { filter: grayscale(0) brightness(1); }
+.tier-tab-link.active .tier-tab-span { background: rgba(30, 41, 57, 0.5); color: #fff; }
+.tier-tab-link.active .tier-tab-span img { filter: grayscale(0) brightness(1); }
+.tier-tab-link.active .tier-tab-span::after {
+    content: ""; position: absolute; left: 0; bottom: 0;
+    width: 100%; height: 2px; background: #ffffff; display: block;
+}
+
+.player-row {
+    width: 100%; min-height: 5.4rem;
+    position: relative;
+    display: flex; flex-direction: column;
+    background: rgba(30, 41, 57, 0.2);
+    border-radius: 0.75rem; margin: 0.5rem 0;
+    border: 2px solid #18202a;
+    transition: 0.15s ease; cursor: pointer;
+    contain: layout style paint;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 86px;
+}
+.player-row:hover { background: #1e2939; }
+@media (min-width: 40rem) { .player-row:hover { transform: translateX(-0.75rem); } }
+.player-row:active { transform: scale(0.99); }
+
+.tier-slot {
+    width: 2.4rem; height: 3.4rem;
+    position: relative; display: flex; flex-direction: column; align-items: center;
+    flex: 0 0 auto;
+}
+.tier-slot-circle {
+    width: 2.05rem; height: 2.05rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; border: 2px solid; padding: 0.25rem;
+}
+.tier-slot-circle img { width: 20px; height: 20px; object-fit: contain; }
+
+.tier-slot.retired-main .tier-slot-badge {
+    font-style: normal;
+    letter-spacing: 0.02em;
+}
+
+.tier-slot-badge {
+    position: absolute; bottom: 0.25rem; left: 50%; transform: translateX(-50%);
+    font-size: 13px; padding: 0 0.25rem; border-radius: 0.4rem;
+    width: 2.2rem; text-align: center; font-weight: 800; line-height: 1.4;
+    font-style: normal;
+}
+.tier-slot.empty .tier-slot-circle {
+    border-color: rgba(98, 116, 142, 0.5); border-style: dashed;
+    background: rgba(0, 0, 0, 0.2);
+}
+.tier-slot.empty .tier-slot-badge {
+    bottom: 0.1rem; height: 1.45rem;
+    background: rgba(98, 116, 142, 0.1);
+    color: #99a1af;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    font-weight: 500; font-size: 0.8rem;
+}
+.overall_player__label { font-weight: 700; color: #99a1af; text-transform: uppercase; font-size: 0.72rem; }
+@media (min-width: 48rem) { .overall_player__label { display: none; } }
+.overall_player__slots-wrapper { display: flex; gap: 0.15rem; }
+
+.region-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+    min-width: 4.5rem;
+    border-radius: 0.5rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    border: 1px solid currentColor;
+    line-height: 1.2;
+    transition: transform 0.15s ease;
+}
+.player-row:hover .region-tag { transform: scale(1.05); }
+
+.rank-number {
+    font-size: 2.35rem; font-weight: 700; font-style: italic;
+    align-self: flex-end; position: absolute;
+    left: 0.6rem; bottom: 0.4rem;
+    filter: drop-shadow(0px 3px 1px #232323);
+    color: #fff; z-index: 2;
+    line-height: 1;
+}
+.player-skin {
+    width: 72px; height: 72px;
+    position: absolute; right: 1.6rem; bottom: -2px;
+    object-fit: contain;
+    filter: drop-shadow(-4px -2px 1px rgba(0, 0, 0, 0.47));
+    z-index: 2;
+}
+.placement-bg {
+    width: 100%; height: 100%;
+    position: absolute; inset: 0;
+    object-fit: cover; z-index: 0;
+}
+.player-name {
+    color: #cad5e2; font-weight: 700; font-size: 1.55rem;
+    line-height: 1.2;
+    text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+}
+.user-ban { text-decoration: line-through; opacity: 0.55; }
+.empty-tip { text-align: center; padding: 4rem 0; color: #64748b; font-size: 1rem; }
+.tier-tabs-scroll { scrollbar-width: thin; }
+.tier-tabs-scroll::-webkit-scrollbar { height: 4px; background: transparent; }
+.tier-tabs-scroll::-webkit-scrollbar-thumb { background: #303746; border-radius: 8px; }
+
+.load-more-hint { text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.85rem; letter-spacing: 0.05em; }
+.load-more-hint i { margin-right: 0.4rem; }
+
+.modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 100; display: none;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+}
+.modal-bg.show { display: flex; }
+
+@keyframes modalPop { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes modalClose { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9); } }
+.modal-box { animation: modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.modal-box.closing { animation: modalClose 0.25s ease-in forwards; }
+
+.mctiers-detail {
+    width: min(94%, 820px); max-height: 90vh; overflow-y: auto;
+    background: #121822; border: 2px solid #18202a; border-radius: 1rem;
+}
+.mctiers-detail-header {
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 1.6rem 1.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(135deg, rgba(155, 187, 245, 0.06), rgba(30, 41, 57, 0.02) 60%, transparent);
+    position: relative;
+}
+.mctiers-detail-avatar {
+    width: 92px; height: 92px; flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #18202a; border-radius: 12px;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.mctiers-detail-avatar img { width: 100%; height: 100%; object-fit: contain; object-position: center top; }
+.mctiers-detail-info { flex: 1; min-width: 0; }
+.mctiers-detail-info h2 { font-size: 1.7rem; font-weight: 900; color: #fff; margin-bottom: 0.4rem; line-height: 1.2; word-break: break-all; }
+.mctiers-detail-meta { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; color: #94a3b8; font-size: 0.9rem; }
+.mctiers-detail-meta .rank-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 12px; border-radius: 20px;
+    font-weight: 800; font-size: 0.9rem;
+    background: rgba(66, 165, 245, 0.15);
+    border: 1px solid rgba(66, 165, 245, 0.3); color: #90cfff;
+}
+.mctiers-detail-meta .rank-badge.gold { background: rgba(255, 215, 0, 0.18); border-color: #ffd700; color: #ffd700; }
+.mctiers-detail-meta .rank-badge.silver { background: rgba(192, 192, 192, 0.18); border-color: #c0c0c0; color: #c0c0c0; }
+.mctiers-detail-meta .rank-badge.bronze { background: rgba(205, 127, 50, 0.18); border-color: #cd7f32; color: #cd7f32; }
+.mctiers-detail-meta .region-chip { display: inline-flex; align-items: center; gap: 4px; color: #90cfff; font-weight: 600; }
+.mctiers-detail-close {
+    position: absolute; top: 0.85rem; right: 0.85rem;
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04); color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer; transition: all 0.2s; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+}
+.mctiers-detail-close:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: rotate(90deg); }
+
+.mctiers-flip-wrapper { perspective: 1600px; margin: 1.4rem 1.9rem; }
+.mctiers-flip-inner {
+    display: grid; transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer; position: relative;
+}
+.mctiers-flip-wrapper:hover .mctiers-flip-inner,
+.mctiers-flip-wrapper.flipped .mctiers-flip-inner { transform: rotateY(180deg); }
+.mctiers-flip-front, .mctiers-flip-back { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.mctiers-flip-back {
+    transform: rotateY(180deg);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.25rem 1.75rem;
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, rgba(155, 187, 245, 0.14), rgba(30, 41, 57, 0.08));
+    border: 1px solid rgba(155, 187, 245, 0.25);
+    position: relative; overflow: hidden;
+}
+.mctiers-flip-back::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 30%, rgba(155, 187, 245, 0.1), transparent 55%);
+    pointer-events: none;
+}
+.flip-back-inner { display: flex; gap: 0.75rem; width: 100%; position: relative; z-index: 1; }
+.flip-action-btn {
+    flex: 1; display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem 0.95rem;
+    background: rgba(30, 41, 57, 0.7);
+    border: 1px solid rgba(155, 187, 245, 0.2);
+    border-radius: 0.75rem; color: #fff; cursor: pointer;
+    transition: all 0.2s; text-align: left; font-family: inherit;
+}
+.flip-action-btn:hover {
+    background: rgba(30, 41, 57, 1);
+    border-color: rgba(155, 187, 245, 0.45);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+.flip-action-btn:active { transform: translateY(0) scale(0.98); }
+.flip-action-icon {
+    width: 2.25rem; height: 2.25rem;
+    border-radius: 0.6rem;
+    background: rgba(155, 187, 245, 0.12);
+    color: #90cfff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; flex-shrink: 0; transition: all 0.2s;
+}
+.flip-action-btn:hover .flip-action-icon { background: rgba(155, 187, 245, 0.22); color: #b8d9ff; }
+.flip-action-text { flex: 1; min-width: 0; }
+.flip-action-title { font-weight: 800; font-size: 0.9rem; color: #fff; margin-bottom: 0.1rem; }
+.flip-action-desc { font-size: 0.7rem; color: #94a3b8; }
+.flip-action-copy { color: #64748b; font-size: 0.9rem; flex-shrink: 0; transition: 0.2s; }
+.flip-action-btn:hover .flip-action-copy { color: #90cfff; }
+
+.mctiers-overall-banner {
+    margin: 0; padding: 1.25rem 1.6rem;
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, rgba(155, 187, 245, 0.1), rgba(30, 41, 57, 0.05));
+    border: 1px solid rgba(155, 187, 245, 0.15);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    position: relative; overflow: hidden;
+}
+.mctiers-overall-banner::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(155, 187, 245, 0.08), transparent 50%);
+    pointer-events: none;
+}
+.mctiers-overall-banner > * { position: relative; z-index: 1; }
+.mctiers-overall-label {
+    font-size: 0.68rem; color: #94a3b8;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 800; margin-bottom: 0.3rem;
+}
+.mctiers-overall-tier { font-size: 1.65rem; font-weight: 900; line-height: 1.1; }
+.mctiers-overall-points {
+    font-size: 2.4rem; font-weight: 900; line-height: 1;
+    background: linear-gradient(90deg, #fff, #c0e0ff);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; text-align: right;
+}
+
+.mctiers-modes-section { padding: 0 1.9rem 1.4rem; }
+.mctiers-modes-title {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: #cbd5e1; font-weight: 800; font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+}
+.mctiers-modes-title .right { margin-left: auto; color: #64748b; font-weight: 500; font-size: 0.72rem; }
+.mctiers-modes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.55rem; }
+.mctiers-mode-card {
+    padding: 0.7rem 0.85rem;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.65rem; transition: all 0.2s ease;
+}
+.mctiers-mode-card:hover { background: rgba(155, 187, 245, 0.07); border-color: rgba(155, 187, 245, 0.35); transform: translateY(-2px); }
+.mctiers-mode-card .mc-mode-name {
+    font-size: 0.72rem; color: #94a3b8; font-weight: 700;
+    display: flex; align-items: center; gap: 5px; margin-bottom: 0.4rem;
+}
+.mctiers-mode-card .mc-mode-name img { width: 14px; height: 14px; object-fit: contain; }
+.mctiers-mode-card .mc-mode-tier { font-size: 1.25rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.1rem; font-style: normal; }
+.mctiers-mode-card .mc-mode-pts { font-size: 0.7rem; color: #64748b; font-weight: 600; }
+.mctiers-mode-card.empty { opacity: 0.5; }
+.mctiers-mode-card.empty:hover { opacity: 0.85; }
+.mctiers-detail-admin {
+    display: none; gap: 0.65rem; justify-content: flex-end;
+    padding: 0.85rem 1.9rem 1.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mctiers-detail-admin.show { display: flex; }
+
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.45rem; height: 2.25rem; padding: 0 1rem;
+    border-radius: 0.5rem; font-size: 0.85rem; font-weight: 500;
+    transition: 0.15s; border: none; cursor: pointer; white-space: nowrap;
+    font-family: inherit;
+}
+.btn:active { transform: scale(0.95); }
+.btn-secondary { background: #1e2939; color: #f9fafb; }
+.btn-secondary:hover { background: rgba(30, 41, 57, 0.8); }
+.btn-primary { background: #e5e7eb; color: #101828; }
+.btn-primary:hover { background: rgba(229, 231, 235, 0.9); }
+.btn-danger { background: #ff6568; color: #fff; }
+.btn-danger:hover { background: rgba(255, 101, 104, 0.9); }
+
+.form-item label { display: block; margin-bottom: 4px; font-size: 12px; color: #99a1af; font-weight: 500; }
+.form-item input, .form-item select {
+    width: 100%;
+    background: rgba(155, 187, 245, 0.08);
+    border: 1px solid rgba(155, 187, 245, 0.15);
+    color: #fff; padding: 7px 10px;
+    border-radius: 6px; outline: none; transition: 0.2s;
+    font-family: inherit;
+}
+.form-item input:focus, .form-item select:focus { border-color: #6a7282; box-shadow: 0 0 0 3px rgba(106, 114, 130, 0.2); }
+.form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 768px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
+.color-preview { width: 26px; height: 26px; border-radius: 4px; border: 1px solid #444; display: inline-block; vertical-align: middle; margin-left: 8px; }
+.avatar-upload { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.avatar-upload input[type="file"] { display: none; }
+.avatar-upload .upload-btn {
+    background: #1e2939; color: #fff; padding: 7px 14px;
+    border-radius: 6px; cursor: pointer; font-size: 12px;
+    border: 1px solid #2a3648; transition: 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.avatar-upload .upload-btn:hover { background: #2a3648; }
+.avatar-preview-small { width: 42px; height: 42px; border-radius: 4px; object-fit: cover; border: 1px solid #444; background: #14141c; }
+.avatar-upload .hint { color: #64748b; font-size: 11px; }
+
+.tier-score-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 6px; }
+.tier-score-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 7px; padding: 7px 9px;
+    text-align: center; transition: 0.2s;
+}
+.tier-score-item:hover { background: rgba(155, 187, 245, 0.06); transform: translateY(-2px); }
+.tier-score-item .tier-name { font-weight: 700; font-size: 13px; font-style: normal; }
+.tier-score-item .tier-pts { font-size: 12px; color: #90cfff; font-weight: 600; }
+
+.main-title {
+    color: #fff;
+    background: linear-gradient(90deg, #42a5f5, #ff6b6b, #b35cff, #42a5f5);
+    background-size: 200% auto;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shineFlow 6s linear infinite;
+    cursor: default; user-select: none;
+    -webkit-user-select: none; -webkit-touch-callout: none;
+}
+@keyframes shineFlow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+
+.tier-HT1 { color: var(--ht1-foreground); }
+.tier-LT1 { color: var(--lt1-foreground); }
+.tier-HT2 { color: var(--ht2-foreground); }
+.tier-LT2 { color: var(--lt2-foreground); }
+.tier-HT3 { color: var(--ht3-foreground); }
+.tier-LT3 { color: var(--lt3-foreground); }
+.tier-HT4 { color: var(--ht4-foreground); }
+.tier-LT4 { color: var(--lt4-foreground); }
+.tier-HT5 { color: var(--ht5-foreground); }
+.tier-LT5 { color: var(--lt5-foreground); }
+
+.tier-RHT1, .tier-RLT1, .tier-RHT2, .tier-RLT2 {
+    color: var(--retired-foreground) !important;
+    font-weight: 700; font-style: normal; opacity: 0.9; letter-spacing: 0.02em;
+}
+.tier-PLT1, .tier-PHT2, .tier-PLT2, .tier-PHT3, .tier-PLT3 {
+    color: var(--p-tier-foreground) !important;
+    font-weight: bold; font-style: normal;
+}
+.tier-- { color: #64748b; }
+.text-grandmaster { color: #ffd700; }
+.text-master { color: #b35cff; }
+.text-ace { color: #42a5f5; }
+.text-specialist { color: #36d399; }
+.text-cadet { color: #f2ee63; }
+.text-novice { color: #ff8533; }
+.text-rookie { color: #868686; }
+
+.mode-board-grid { display: grid; gap: 0.45rem; grid-template-columns: repeat(5, minmax(200px, 1fr)); min-width: 1040px; }
+.mode-col-header { height: 2.6rem; font-size: 0.95rem; }
+.mode-player-row { min-height: 2.8rem; padding: 0.45rem 0.75rem; }
+
+@media (max-width: 800px) {
+    .mctiers-detail-header { gap: 0.9rem; padding: 1.1rem; flex-wrap: wrap; }
+    .mctiers-detail-info h2 { font-size: 1.25rem; }
+    .mctiers-detail-avatar { width: 70px; height: 70px; }
+    .mctiers-flip-wrapper { margin: 0.9rem 1.1rem; }
+    .mctiers-overall-banner { padding: 0.9rem 1.1rem; flex-direction: column; align-items: flex-start; }
+    .mctiers-overall-points { text-align: left; font-size: 2rem; }
+    .flip-back-inner { flex-direction: column; }
+    .mctiers-modes-section { padding: 0 1.1rem 1.1rem; }
+    .mctiers-modes-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); }
+    .region-tag { font-size: 0.8rem; padding: 0.28rem 0.55rem; min-width: 3.5rem; }
+}
+</style>
+</head>
+<body class="bg-background text-foreground">
+
+<div class="w-full min-h-screen bg-background text-foreground">
+    <div aria-hidden="true" style="padding-top:2rem"></div>
+
+    <header class="max-w-[1352px] h-16 rounded-xl bg-[#121822] m-auto border-2 border-[#18202a] z-50">
+        <nav class="w-full h-[inherit] flex items-center justify-between gap-2 px-4">
+            <div class="mr-auto max-w-40 w-full">
+                <a class="w-fit flex items-center" href="javascript:void(0)">
+                    <h1 class="text-2xl font-bold main-title tracking-wide" id="siteTitle">
+                        <i class="fa-solid fa-crosshairs text-red-500 mr-2"></i>BETier
+                    </h1>
+                </a>
+            </div>
+            <ul class="flex max-md:hidden max-w-fit">
+                <li class="relative">
+                    <a class="group p-2 relative flex items-center gap-2 z-20" href="javascript:void(0)">
+                        <i class="fa-solid fa-ranking-star text-lg text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="text-lg font-medium text-muted-foreground group-hover:text-foreground transition-colors">Rankings</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <a class="group p-2 relative flex items-center gap-2 z-20" href="https://1818472785.share.123pan.cn/123pan/1t9hjv-w9HFv" target="_blank">
+                        <i class="fa-solid fa-download text-lg text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="text-lg font-medium text-muted-foreground group-hover:text-foreground transition-colors">模组下载</span>
+                    </a>
+                </li>
+                <li class="relative">
+                    <a class="group p-2 relative flex items-center gap-2 z-20" href="https://kook.vip/ZgLexk" target="_blank">
+                        <i class="fa-solid fa-comments text-lg text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="text-lg font-medium text-muted-foreground group-hover:text-foreground transition-colors">KOOK</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="ml-auto max-w-52 max-md:max-w-fit w-full flex justify-end">
+                <span class="bg-[#9bbbf526] text-muted-foreground rounded-full flex gap-2 items-center relative ml-auto h-10 px-2">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="22" width="22" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"></path>
+                    </svg>
+                    <input id="searchBox" placeholder="搜索玩家..." class="outline-none border-none max-w-52 w-full bg-transparent text-foreground placeholder:text-muted-foreground" value="">
+                    <kbd class="bg-muted text-muted-foreground px-2 py-1 rounded-md text-xs max-md:hidden">/</kbd>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="w-full max-w-[1352px] min-h-screen m-auto">
+        <div class="w-full h-fit rounded-xl bg-card border-2 border-border mt-28 rounded-tl-none p-8 pt-2 relative">
+            <section id="tierTabs" class="w-full flex gap-1 absolute top-auto bottom-full left-0 overflow-x-auto overflow-y-hidden tier-tabs-scroll"></section>
+
+            <div class="flex items-center gap-4 justify-end mb-4 mt-6">
+                <button id="addPlayerBtn" class="btn btn-primary hidden">
+                    <i class="fa-solid fa-plus"></i>新增玩家
+                </button>
+                <span id="adminTip" class="text-green-400 hidden text-sm font-semibold">✅ 管理员权限已解锁</span>
+                <button id="tierInfoBtn" class="btn btn-secondary" type="button">
+                    <i class="fa-solid fa-circle-info"></i>Information
+                </button>
+            </div>
+
+            <div class="w-full flex gap-2 max-md:hidden font-bold uppercase px-4 text-muted text-sm">
+                <span>#</span>
+                <span class="w-[210px] text-right inline-block">Player</span>
+                <span class="w-[130px] text-center ml-auto">Region</span>
+                <span class="w-[380px] text-center">Top Tiers</span>
+            </div>
+            <div class="w-full flex gap-2 md:hidden font-bold uppercase px-4 text-muted text-sm">
+                <span>#</span>
+                <span class="w-[170px] text-right inline-block">Player</span>
+                <span class="ml-auto w-[115px] inline-block text-center">Region</span>
+            </div>
+
+            <div id="playerTableBody" class="w-full">
+                <div class="empty-tip">正在从数据库加载玩家数据...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full h-fit p-12 bg-[#121822] mt-24">
+        <div class="text-2xl text-slate-400 text-center">North_Ling © BETier 2025</div>
+    </footer>
+</div>
+
+<div id="adminPwdModal" class="modal-bg">
+    <div class="modal-box bg-card border-2 border-border rounded-xl w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">管理员验证</h2>
+            <button id="closeAdminPwdModal" class="text-gray-400 text-2xl hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="form-item mb-6">
+            <label>请输入管理员密码</label>
+            <input id="adminPwdInput" placeholder="管理员密码" type="password">
+        </div>
+        <div class="flex gap-3 justify-end">
+            <button id="cancelAdminPwd" class="btn btn-secondary">取消</button>
+            <button id="confirmAdminPwd" class="btn btn-primary">验证解锁</button>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal" class="modal-bg">
+    <div class="modal-box mctiers-detail">
+        <div class="mctiers-detail-header">
+            <div class="mctiers-detail-avatar">
+                <img id="detailAvatar" src="" alt="avatar">
+            </div>
+            <div class="mctiers-detail-info">
+                <h2 id="detailName"></h2>
+                <div class="mctiers-detail-meta">
+                    <span id="detailRank"></span>
+                    <span class="region-chip">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span id="detailRegion"></span>
+                    </span>
+                </div>
+            </div>
+            <button id="closeDetail" class="mctiers-detail-close" aria-label="关闭">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="mctiers-flip-wrapper" id="detailFlipWrapper">
+            <div class="mctiers-flip-inner">
+                <div class="mctiers-overall-banner mctiers-flip-front">
+                    <div>
+                        <div class="mctiers-overall-label">Overall Tier</div>
+                        <div class="mctiers-overall-tier" id="detailTierText"></div>
+                    </div>
+                    <div>
+                        <div class="mctiers-overall-label" style="text-align:right;">Total Points</div>
+                        <div class="mctiers-overall-points" id="detailTotal"></div>
+                    </div>
+                </div>
+                <div class="mctiers-flip-back">
+                    <div class="flip-back-inner">
+                        <button class="flip-action-btn" id="copyIdBtn" type="button">
+                            <div class="flip-action-icon"><i class="fa-solid fa-id-card"></i></div>
+                            <div class="flip-action-text">
+                                <div class="flip-action-title">复制玩家ID</div>
+                                <div class="flip-action-desc">Copy Player ID</div>
+                            </div>
+                            <div class="flip-action-copy"><i class="fa-solid fa-copy"></i></div>
+                        </button>
+                        <button class="flip-action-btn" id="copyDataBtn" type="button">
+                            <div class="flip-action-icon"><i class="fa-solid fa-database"></i></div>
+                            <div class="flip-action-text">
+                                <div class="flip-action-title">复制API数据</div>
+                                <div class="flip-action-desc">Copy Raw JSON</div>
+                            </div>
+                            <div class="flip-action-copy"><i class="fa-solid fa-copy"></i></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mctiers-modes-section">
+            <div class="mctiers-modes-title">
+                <i class="fa-solid fa-chart-simple text-ace"></i>
+                Mode Tiers
+                <span class="right">16 modes · independent rating</span>
+            </div>
+            <div class="mctiers-modes-grid" id="detailGrid"></div>
+        </div>
+
+        <div id="detailAdminBtns" class="mctiers-detail-admin">
+            <button id="detailEditBtn" class="btn btn-secondary"><i class="fa-solid fa-pen"></i>编辑玩家</button>
+            <button id="detailDelBtn" class="btn btn-danger"><i class="fa-solid fa-trash"></i>删除玩家</button>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal-bg">
+    <div class="modal-box bg-card border-2 border-border rounded-xl p-6 w-full max-w-[1100px]" style="max-height:90vh; overflow-y:auto;">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white" id="editModalTitle">新增玩家</h2>
+            <button id="closeEditModal" class="text-gray-400 text-2xl hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="playerEditForm">
+            <input type="hidden" id="editId">
+            <div class="form-item mb-4">
+                <label>玩家名称</label>
+                <input type="text" id="form_name" required placeholder="玩家ID">
+                <small class="text-gray-500 block mt-1">离线玩家皮肤将自动回退到 LionBERSERK</small>
+            </div>
+            <div class="form-item mb-4">
+                <label>自定义头像（可选）</label>
+                <div class="avatar-upload">
+                    <img id="avatarPreview" class="avatar-preview-small" style="display:none">
+                    <label class="upload-btn" for="avatarUpload"><i class="fa-solid fa-upload mr-1"></i>选择图片</label>
+                    <input type="file" id="avatarUpload" accept="image/*">
+                    <input type="hidden" id="form_avatar">
+                    <span class="hint">支持 PNG/JPG，建议 64x64</span>
+                </div>
+            </div>
+            <div class="form-item mb-4">
+                <label>所属地区</label>
+                <select id="form_region"></select>
+            </div>
+            <div class="form-item mb-4 flex items-center">
+                <label class="w-32">自定义名称色值</label>
+                <input type="text" id="form_color" placeholder="#36d399，留空默认" class="flex-1">
+                <span class="color-preview" id="colorPreview"></span>
+            </div>
+            <div class="form-grid mb-6" id="modeFormGrid"></div>
+            <div class="flex gap-3 justify-end">
+                <button type="button" id="cancelEdit" class="btn btn-secondary">取消</button>
+                <button type="submit" class="btn btn-primary">保存数据</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="tierInfoModal" class="modal-bg">
+    <div class="modal-box bg-card border-2 border-border rounded-xl p-6 w-full max-w-[1100px]" style="max-height:90vh; overflow-y:auto;">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-ranking-star text-grandmaster"></i>段位积分分级
+            </h2>
+            <button id="closeTierInfo" class="text-gray-400 text-2xl hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-300 mb-3">🏅 综合段位（总分）</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-base">
+                <span class="text-grandmaster font-semibold">Combat GrandMaster ≥800</span>
+                <span class="text-master font-semibold">Combat Master ≥500</span>
+                <span class="text-ace font-semibold">Combat Ace ≥200</span>
+                <span class="text-specialist font-semibold">Combat Specialist ≥100</span>
+                <span class="text-cadet font-semibold">Combat Cadet ≥40</span>
+                <span class="text-novice font-semibold">Combat Novice ≥20</span>
+                <span class="text-rookie font-semibold">Rookie ≥1</span>
+            </div>
+        </div>
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-300 mb-3">📊 子段位分数对照</h3>
+            <div class="tier-score-grid" id="tierScoreGrid"></div>
+            <p class="text-xs text-gray-500 mt-3">* 每个模式独立评定段位，16个模式积分累加得到总分</p>
+        </div>
+        <div class="flex justify-end mt-6 border-t border-border pt-4">
+            <button id="closeTierInfoBtn" class="btn btn-secondary">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// 核心配置
+// ============================================================
+const API_BASE = "https://betierapi.ccwu.cc";
+const ADMIN_PASSWORD = "1q2w3e4r5t6y";
+const OFFLINE_FALLBACK_NAME = "LionBERSERK";
+const SKIN_RENDER_SIZE = 128;
+const SKIN_YAW = -30;
+const SKIN_PITCH = 0;
+
+const BATCH_SIZE = 25;
+const TOP_MODES_COUNT = 8;
+
+const MODES = ["Sword", "Axe", "SMP", "UHC", "Crystal", "Mace", "Pot", "NethPot", "OPot", "OUHC", "Bedwars", "Fireball",
+    "TopFight", "Archer", "Sumo", "Boxing"
+];
+
+const TIER_ORDER = {
+    'HT1': 1, 'RHT1': 2, 'PLT1': 3, 'LT1': 4, 'RLT1': 5,
+    'HT2': 6, 'RHT2': 7, 'PHT2': 8, 'LT2': 9, 'RLT2': 10,
+    'PLT2': 11, 'PHT3': 12, 'HT3': 13, 'PLT3': 14, 'LT3': 15,
+    'HT4': 16, 'LT4': 17, 'HT5': 18, 'LT5': 19,
+    '-': 999
+};
+
+// 【修复1】使用相对路径，避免子目录部署时 404
+const ICON_BASE_PATH = "icons/";
+
+const TIER_VAR_MAP = {
+    "HT1": "ht1", "LT1": "lt1",
+    "HT2": "ht2", "LT2": "lt2",
+    "HT3": "ht3", "LT3": "lt3",
+    "HT4": "ht4", "LT4": "lt4",
+    "HT5": "ht5", "LT5": "lt5",
+    "PLT1": "p-tier", "PHT2": "p-tier", "PLT2": "p-tier", "PHT3": "p-tier", "PLT3": "p-tier",
+    "RHT1": "retired", "RLT1": "retired",
+    "RHT2": "retired", "RLT2": "retired"
+};
+
+function isRetiredTier(tier) { return /^R(HT|LT)\d$/i.test(String(tier)); }
+function isPenaltyTier(tier) { return /^P(HT|LT)\d$/i.test(String(tier)); }
+function getBaseTier(tier) {
+    const map = {
+        'RHT1': 'HT1', 'RLT1': 'LT1', 'RHT2': 'HT2', 'RLT2': 'LT2',
+        'PHT1': 'HT1', 'PHT2': 'HT2', 'PHT3': 'HT3',
+        'PLT1': 'LT1', 'PLT2': 'LT2', 'PLT3': 'LT3'
+    };
+    return map[tier] || tier;
+}
+
+const REGION_COLORS = {
+    '北京':   { bg: '#1a2a4a', fg: '#7db6e0' },
+    '天津':   { bg: '#1a2a4a', fg: '#7db6e0' },
+    '河北':   { bg: '#1a2a4a', fg: '#7db6e0' },
+    '山西':   { bg: '#1a2a4a', fg: '#7db6e0' },
+    '内蒙古': { bg: '#1a2a4a', fg: '#7db6e0' },
+    '辽宁':   { bg: '#1a3a3a', fg: '#6ec4c4' },
+    '吉林':   { bg: '#1a3a3a', fg: '#6ec4c4' },
+    '黑龙江': { bg: '#1a3a3a', fg: '#6ec4c4' },
+    '上海':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '江苏':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '浙江':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '安徽':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '福建':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '江西':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '山东':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '台湾':   { bg: '#1a3a22', fg: '#7dd97d' },
+    '河南':   { bg: '#3a3a1a', fg: '#e8d06b' },
+    '湖北':   { bg: '#3a3a1a', fg: '#e8d06b' },
+    '湖南':   { bg: '#3a3a1a', fg: '#e8d06b' },
+    '广东':   { bg: '#3a2a1a', fg: '#e8a06b' },
+    '广西':   { bg: '#3a2a1a', fg: '#e8a06b' },
+    '海南':   { bg: '#3a2a1a', fg: '#e8a06b' },
+    '香港':   { bg: '#3a2a1a', fg: '#e8a06b' },
+    '澳门':   { bg: '#3a2a1a', fg: '#e8a06b' },
+    '重庆':   { bg: '#2a1a3a', fg: '#c47de8' },
+    '四川':   { bg: '#2a1a3a', fg: '#c47de8' },
+    '贵州':   { bg: '#2a1a3a', fg: '#c47de8' },
+    '云南':   { bg: '#2a1a3a', fg: '#c47de8' },
+    '西藏':   { bg: '#2a1a3a', fg: '#c47de8' },
+    '陕西':   { bg: '#3a1a1a', fg: '#e87d7d' },
+    '甘肃':   { bg: '#3a1a1a', fg: '#e87d7d' },
+    '青海':   { bg: '#3a1a1a', fg: '#e87d7d' },
+    '宁夏':   { bg: '#3a1a1a', fg: '#e87d7d' },
+    '新疆':   { bg: '#3a1a1a', fg: '#e87d7d' },
+    '其它':   { bg: '#2a2a2a', fg: '#999999' }
+};
+function getRegionColor(region) { return REGION_COLORS[region] || REGION_COLORS['其它']; }
+
+const REGION_LIST = ["北京", "天津", "上海", "重庆", "河北", "山西", "辽宁", "吉林", "黑龙江", "江苏", "浙江", "安徽", "福建", "江西", "山东",
+    "河南", "湖北", "湖南", "广东", "海南", "四川", "贵州", "云南", "陕西", "甘肃", "青海", "台湾", "内蒙古", "广西", "西藏", "宁夏",
+    "新疆", "香港", "澳门", "其它"
+];
+
+const ALL_TIERS = ["-", "HT1", "LT1", "RHT1", "RLT1", "HT2", "LT2", "RHT2", "RLT2", "PLT1", "PHT2", "PLT2", "PHT3",
+    "PLT3", "HT3", "LT3", "HT4", "LT4", "HT5", "LT5"
+];
+
+const TIER_SCORE = {
+    "HT1": 60, "RHT1": 60, "LT1": 45, "RLT1": 45,
+    "HT2": 30, "RHT2": 30, "LT2": 20, "RLT2": 20,
+    "PLT1": 50, "PHT2": 34, "PLT2": 23, "PHT3": 12, "PLT3": 7,
+    "HT3": 10, "LT3": 6, "HT4": 4, "LT4": 3, "HT5": 2, "LT5": 1, "-": 0
+};
+
+const TIER_INFO_MAP = {
+    "Combat GrandMaster": { cls: "text-grandmaster", icon: "fa-crown", color: "#ffd700" },
+    "Combat Master": { cls: "text-master", icon: "fa-medal", color: "#b35cff" },
+    "Combat Ace": { cls: "text-ace", icon: "fa-award", color: "#42a5f5" },
+    "Combat Specialist": { cls: "text-specialist", icon: "fa-star", color: "#36d399" },
+    "Combat Cadet": { cls: "text-cadet", icon: "fa-shield-halved", color: "#f2ee63" },
+    "Combat Novice": { cls: "text-novice", icon: "fa-fire", color: "#ff8533" },
+    "Rookie": { cls: "text-rookie", icon: "fa-seedling", color: "#868686" }
+};
+
+const SHIMMER_1 = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><defs><g id="b" fill="#f0c863"><path d="M100 0h40L55 100H15zM70 0h15L0 100h-15z"/><animateTransform attributeName="transform" calcMode="spline" dur="2s" keySplines="0.9 0 0.1 1" keyTimes="0; 1" repeatCount="indefinite" type="translate" values="-150 0; 200 0"/></g></defs><path fill="#efba3c" stroke="#f0c863" stroke-width="4" d="M0 0h200l-35 100H0z"/><clipPath id="a"><path d="M0 0h200l-35 100H0z"/></clipPath><use clip-path="url(#a)" href="#b"/></svg>`);
+const SHIMMER_2 = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><defs><g id="b" fill="#a0b0b7"><path d="M100 0h40L55 100H15zM70 0h15L0 100h-15z"/><animateTransform attributeName="transform" calcMode="spline" dur="2s" keySplines="0.9 0 0.1 1" keyTimes="0; 1" repeatCount="indefinite" type="translate" values="-150 0; 200 0"/></g></defs><path fill="#879ea5" stroke="#a0b0b7" stroke-width="4" d="M0 0h200l-35 100H0z"/><clipPath id="a"><path d="M0 0h200l-35 100H0z"/></clipPath><use clip-path="url(#a)" href="#b"/></svg>`);
+const SHIMMER_3 = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><defs><g id="b" fill="#c58152"><path d="M100 0h40L55 100H15zM70 0h15L0 100h-15z"/><animateTransform attributeName="transform" calcMode="spline" dur="2s" keySplines="0.9 0 0.1 1" keyTimes="0; 1" repeatCount="indefinite" type="translate" values="-150 0; 200 0"/></g></defs><path fill="#b56329" stroke="#c58152" stroke-width="4" d="M0 0h200l-35 100H0z"/><clipPath id="a"><path d="M0 0h200l-35 100H0z"/></clipPath><use clip-path="url(#a)" href="#b"/></svg>`);
+const SHIMMER_OTHER = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><path fill="#1d2735" stroke="#28313f" stroke-width="4" d="M0 0h200l-35 100H0z"/></svg>`);
+
+const STEVE_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%235a5a5a'/%3E%3Crect x='8' y='8' width='16' height='16' fill='%237a7a7a'/%3E%3Crect x='40' y='8' width='16' height='16' fill='%237a7a7a'/%3E%3Crect x='16' y='24' width='32' height='16' fill='%236a6a6a'/%3E%3Crect x='8' y='40' width='12' height='16' fill='%236a6a6a'/%3E%3Crect x='44' y='40' width='12' height='16' fill='%236a6a6a'/%3E%3C/svg%3E";
+
+let playerList = [];
+let searchKeyword = "";
+let searchTimer = null;
+let isAdmin = false;
+let currentViewPlayer = null;
+let activeTierPage = "all";
+
+let filteredCache = [];
+let rankMap = new Map();
+let renderedCount = 0;
+let sentinelObserver = null;
+
+// ============================================================
+// 工具函数
+// ============================================================
+function cleanPlayerName(name) {
+    if (!name) return '';
+    let clean = name;
+    if (clean.includes('|')) clean = clean.split('|')[0].trim();
+    clean = clean.replace(/\s*\(封禁中\)\s*/, '').trim();
+    return clean;
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// 模式图标：icons/{模式名}.png
+function getModeIconUrl(modeName) {
+    return `${ICON_BASE_PATH}${modeName}.png`;
+}
+
+// ============================================================
+// 【修复2】综合段位图标 - 多文件名尝试
+// ============================================================
+window.tryNextIcon = function(img) {
+    try {
+        const urls = JSON.parse(decodeURIComponent(img.getAttribute('data-icon-fallback') || '[]'));
+        let idx = parseInt(img.getAttribute('data-icon-idx') || '0', 10) + 1;
+        if (idx < urls.length) {
+            img.setAttribute('data-icon-idx', String(idx));
+            img.src = urls[idx];
+        } else {
+            // 全部尝试失败，隐藏图片，显示备用 Font Awesome 图标
+            img.style.display = 'none';
+            if (img.nextElementSibling) img.nextElementSibling.style.display = 'inline-block';
+        }
+    } catch (e) {
+        img.style.display = 'none';
+        if (img.nextElementSibling) img.nextElementSibling.style.display = 'inline-block';
+    }
+};
+
+// 生成综合段位图标的 <img> 标签，自动尝试多种文件名
+function buildOverallTierIconImg(tierName) {
+    const raw = String(tierName);
+    const noSpace = raw.replace(/\s+/g, '');
+    const variants = [
+        `${ICON_BASE_PATH}${noSpace}.png`,
+        `${ICON_BASE_PATH}${noSpace.toLowerCase()}.png`,
+        `${ICON_BASE_PATH}${raw}.png`,
+        `${ICON_BASE_PATH}${raw.replace(/\s+/g, '_')}.png`,
+        `${ICON_BASE_PATH}${raw.replace(/\s+/g, '-')}.png`
+    ];
+    const encoded = encodeURIComponent(JSON.stringify(variants));
+    return `<img src="${variants[0]}" 
+                 data-icon-fallback="${encoded}" 
+                 data-icon-idx="0"
+                 onerror="tryNextIcon(this)"
+                 style="width:16px;height:16px;object-fit:contain;flex-shrink:0;" 
+                 alt="${escapeHtml(raw)}">`;
+}
+
+function getPlayerNameHtml(player) {
+    if (!player) return '';
+    const name = player.name || '';
+    if (player.color && /^#[0-9a-fA-F]{6}$/.test(player.color)) {
+        if (name.includes('(封禁中)')) return `<span style="color:${player.color}" class="user-ban">${name}</span>`;
+        return `<span style="color:${player.color}">${name}</span>`;
+    }
+    if (name.includes('(封禁中)')) return `<span class="user-ban">${name}</span>`;
+    return escapeHtml(name);
+}
+
+function getTopModes(player, count = TOP_MODES_COUNT) {
+    const items = MODES.map((m, idx) => ({
+        mode: m,
+        tier: getModeTier(player, m),
+        modeIndex: idx
+    }));
+    items.sort((a, b) => {
+        const ra = TIER_ORDER[a.tier] ?? 999;
+        const rb = TIER_ORDER[b.tier] ?? 999;
+        if (ra !== rb) return ra - rb;
+        return a.modeIndex - b.modeIndex;
+    });
+    return items.slice(0, count);
+}
+
+// ============================================================
+// 皮肤处理
+// ============================================================
+const premiumCache = {};
+const premiumPending = new Map();
+
+async function checkPremium(name) {
+    if (!name) return false;
+    if (premiumCache[name] !== undefined) return premiumCache[name];
+    if (premiumPending.has(name)) return premiumPending.get(name);
+
+    const promise = (async () => {
+        try {
+            const url = `https://visage.surgeplay.com/bust/32/${encodeURIComponent(name)}`;
+            const res = await fetch(url, { method: 'GET', cache: 'default' });
+            return res.ok;
+        } catch (e) { return false; }
+    })();
+
+    premiumPending.set(name, promise);
+    const result = await promise;
+    premiumCache[name] = result;
+    premiumPending.delete(name);
+    return result;
+}
+
+function buildSkinUrl(name) {
+    const clean = (name && String(name).trim()) || OFFLINE_FALLBACK_NAME;
+    return `https://visage.surgeplay.com/bust/${SKIN_RENDER_SIZE}/${encodeURIComponent(clean)}?yaw=${SKIN_YAW}&pitch=${SKIN_PITCH}&aa=true`;
+}
+
+function getOfflineFallbackUrl() { return buildSkinUrl(OFFLINE_FALLBACK_NAME); }
+
+function buildSkinImgHtml(player, extraClass = '', options = {}) {
+    const { alt = '', size = null } = options;
+    const customAvatar = player && player.customAvatar;
+    const clean = cleanPlayerName(player && player.name);
+    const fallbackUrl = getOfflineFallbackUrl();
+    const altText = alt || (escapeHtml(clean || OFFLINE_FALLBACK_NAME) + '的皮肤');
+    const sizeStyle = size ? `style="width:${size}px;height:${size}px;"` : '';
+    const cls = extraClass ? `class="${extraClass}"` : '';
+
+    if (customAvatar && customAvatar.startsWith('data:image')) {
+        return `<img src="${customAvatar}" ${cls} ${sizeStyle} alt="${altText}" loading="lazy"
+                     onerror="this.onerror=null;this.src='${STEVE_AVATAR}';">`;
+    }
+
+    const dataAttr = clean ? ` data-skin-name="${escapeHtml(clean)}"` : '';
+    return `<img src="${fallbackUrl}"${dataAttr} ${cls} ${sizeStyle} alt="${altText}" loading="lazy">`;
+}
+
+async function hydrateAvatars(container) {
+    if (!container) return;
+    const imgs = container.querySelectorAll('img[data-skin-name]');
+    if (!imgs.length) return;
+
+    const names = new Set();
+    imgs.forEach(img => {
+        const n = img.dataset.skinName;
+        if (n) names.add(n);
+    });
+
+    await Promise.all([...names].map(n => checkPremium(n)));
+
+    imgs.forEach(img => {
+        const name = img.dataset.skinName;
+        if (!name) return;
+        if (premiumCache[name] === true) {
+            const fallbackUrl = getOfflineFallbackUrl();
+            img.onerror = function() { this.onerror = null; this.src = fallbackUrl; };
+            img.src = buildSkinUrl(name);
+        }
+        img.removeAttribute('data-skin-name');
+    });
+}
+
+async function hydrateSingleAvatar(imgEl, player) {
+    if (!imgEl) return;
+    const customAvatar = player && player.customAvatar;
+    if (customAvatar && customAvatar.startsWith('data:image')) {
+        imgEl.onerror = function() { this.onerror = null; this.src = STEVE_AVATAR; };
+        imgEl.src = customAvatar;
+        return;
+    }
+
+    const clean = cleanPlayerName(player && player.name);
+    const fallbackUrl = getOfflineFallbackUrl();
+    imgEl.onerror = null;
+    imgEl.src = fallbackUrl;
+    if (!clean) return;
+
+    const isPremium = await checkPremium(clean);
+    if (isPremium) {
+        imgEl.onerror = function() { this.onerror = null; this.src = fallbackUrl; };
+        imgEl.src = buildSkinUrl(clean);
+    }
+}
+
+// ============================================================
+// 段位逻辑
+// ============================================================
+function getTierLevel(tier) {
+    const m = String(tier).match(/T([1-5])/i);
+    return m ? Number(m[1]) : null;
+}
+function isHighTier(tier) { return /^(?:R?HT[1-2]|P?HT[1-3]|HT[1-5])$/i.test(String(tier)); }
+function getModeTierDisplay(tier) { return tier && tier !== "" ? tier : "-"; }
+function getModeTier(player, modeName) {
+    if (!player) return "-";
+    const value = player[modeName];
+    return value !== undefined && value !== null && value !== "" ? value : "-";
+}
+function calcTotal(player) {
+    let sum = 0;
+    MODES.forEach(m => {
+        const t = getModeTier(player, m);
+        sum += Number(TIER_SCORE[t] ?? 0);
+    });
+    return Math.floor(Number(sum));
+}
+function getTierInfo(rawTotal) {
+    const total = Number(rawTotal) || 0;
+    if (total >= 800) return { name: "Combat GrandMaster", cls: "text-grandmaster" };
+    if (total >= 500) return { name: "Combat Master", cls: "text-master" };
+    if (total >= 200) return { name: "Combat Ace", cls: "text-ace" };
+    if (total >= 100) return { name: "Combat Specialist", cls: "text-specialist" };
+    if (total >= 40) return { name: "Combat Cadet", cls: "text-cadet" };
+    if (total >= 20) return { name: "Combat Novice", cls: "text-novice" };
+    return { name: "Rookie", cls: "text-rookie" };
+}
+function getTierBucketPlayers(players, mode, tierNum) {
+    const excludedTiers = ["RHT1", "RLT1", "RHT2", "RLT2"];
+    return players.filter(p => {
+        const tier = getModeTier(p, mode);
+        if (excludedTiers.includes(tier)) return false;
+        return getTierLevel(tier) === tierNum;
+    }).sort((a, b) => {
+        const ta = getModeTier(a, mode), tb = getModeTier(b, mode);
+        const sa = TIER_SCORE[ta] ?? 0, sb = TIER_SCORE[tb] ?? 0;
+        if (sa !== sb) return sb - sa;
+        return String(a.name).localeCompare(String(b.name));
+    });
+}
+function applySearch(data) {
+    if (searchKeyword.trim() === "") return data;
+    const kw = searchKeyword.toLowerCase().trim();
+    return data.filter(item =>
+        String(item.name || "").toLowerCase().includes(kw) ||
+        String(item.region || "").toLowerCase().includes(kw)
+    );
+}
+
+// ============================================================
+// Tier 标签页
+// ============================================================
+function buildTierTabs() {
+    const container = document.getElementById("tierTabs");
+    container.innerHTML = "";
+    container.appendChild(createTabElement("all", "Overall", null));
+    MODES.forEach(m => {
+        container.appendChild(createTabElement(m, m, getModeIconUrl(m)));
+    });
+}
+function createTabElement(key, label, iconUrl) {
+    const a = document.createElement('a');
+    a.className = 'tier-tab-link' + (key === activeTierPage ? ' active' : '');
+    a.href = 'javascript:void(0)';
+    a.dataset.tier = key;
+
+    const span = document.createElement('span');
+    span.className = 'tier-tab-span';
+
+    if (iconUrl) {
+        const img = document.createElement('img');
+        img.src = iconUrl;
+        img.alt = label;
+        img.onerror = function() { this.style.display = 'none'; };
+        span.appendChild(img);
+    } else {
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-ranking-star';
+        icon.style.cssText = 'font-size:24px;margin-bottom:4px;color:#42a5f5;';
+        span.appendChild(icon);
+    }
+
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    span.appendChild(strong);
+    a.appendChild(span);
+    a.addEventListener('click', (e) => { e.preventDefault(); switchTierPage(key); });
+    return a;
+}
+function switchTierPage(page) {
+    activeTierPage = page;
+    document.querySelectorAll('.tier-tab-link').forEach(b => {
+        b.classList.toggle('active', b.dataset.tier === page);
+    });
+    renderTable();
+}
+
+// ============================================================
+// 主列表渲染
+// ============================================================
+function renderTable() {
+    const container = document.getElementById("playerTableBody");
+
+    if (activeTierPage !== "all") { renderModePage(activeTierPage); return; }
+
+    let fullData = playerList.filter(item => item && item.name).map(item => {
+        const rawTotal = calcTotal(item);
+        return { ...item, total: Math.max(0, rawTotal) };
+    });
+    fullData.sort((a, b) => b.total - a.total);
+
+    rankMap.clear();
+    fullData.forEach((p, i) => rankMap.set(p.id, i + 1));
+
+    filteredCache = applySearch(fullData);
+
+    container.innerHTML = '';
+    renderedCount = 0;
+    if (sentinelObserver) { sentinelObserver.disconnect(); sentinelObserver = null; }
+
+    if (filteredCache.length === 0) {
+        container.innerHTML = `<div class="empty-tip"><i class="fa-solid fa-magnifying-glass mr-2"></i>未找到匹配玩家</div>`;
+        return;
+    }
+    renderNextBatch();
+}
+
+function renderNextBatch() {
+    const container = document.getElementById("playerTableBody");
+    const end = Math.min(renderedCount + BATCH_SIZE, filteredCache.length);
+
+    const oldSentinel = document.getElementById('loadMoreSentinel');
+    if (oldSentinel) oldSentinel.remove();
+
+    let html = '';
+    for (let i = renderedCount; i < end; i++) {
+        const item = filteredCache[i];
+        const realRank = rankMap.get(item.id) || (i + 1);
+        html += renderPlayerRow(item, realRank);
+    }
+
+    container.insertAdjacentHTML('beforeend', html);
+    hydrateAvatars(container);
+    renderedCount = end;
+
+    if (renderedCount < filteredCache.length) {
+        const sentinel = document.createElement('div');
+        sentinel.id = 'loadMoreSentinel';
+        sentinel.className = 'load-more-hint';
+        sentinel.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>正在加载更多玩家...`;
+        container.appendChild(sentinel);
+        observeSentinel();
+    }
+}
+
+function observeSentinel() {
+    const sentinel = document.getElementById('loadMoreSentinel');
+    if (!sentinel) return;
+    if (sentinelObserver) sentinelObserver.disconnect();
+    sentinelObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (sentinelObserver) sentinelObserver.disconnect();
+                setTimeout(() => renderNextBatch(), 30);
+            }
+        });
+    }, { rootMargin: '300px' });
+    sentinelObserver.observe(sentinel);
+}
+
+function renderPlayerRow(item, realRank) {
+    const tierInfo = getTierInfo(item.total);
+    const info = TIER_INFO_MAP[tierInfo.name] || TIER_INFO_MAP.Rookie;
+
+    let shimmerSrc = SHIMMER_OTHER;
+    if (realRank === 1) shimmerSrc = SHIMMER_1;
+    else if (realRank === 2) shimmerSrc = SHIMMER_2;
+    else if (realRank === 3) shimmerSrc = SHIMMER_3;
+
+    const skinImgHtml = buildSkinImgHtml(item, 'player-skin', {
+        alt: escapeHtml(cleanPlayerName(item.name)) + '的皮肤'
+    });
+
+    const nameHtml = getPlayerNameHtml(item);
+    const region = item.region || "其它";
+    const regionColor = getRegionColor(region);
+
+    const topModes = getTopModes(item, TOP_MODES_COUNT);
+    let slotsHtml = '';
+    topModes.forEach(({ mode: m, tier: t }) => {
+        const iconUrl = getModeIconUrl(m);
+
+        if (t === '-') {
+            slotsHtml += `<span class="tier-slot empty" title="${m} - 0积分">
+                <span class="tier-slot-circle"></span>
+                <span class="tier-slot-badge">-</span>
+            </span>`;
+            return;
+        }
+
+        const retired = isRetiredTier(t);
+        const penalty = isPenaltyTier(t);
+        const displayTier = (retired || penalty) ? getBaseTier(t) : t;
+        const colorVarName = TIER_VAR_MAP[displayTier] || TIER_VAR_MAP[t] || 'placement-other';
+
+        let circleBorder, badgeBg, badgeFg, tipText;
+        if (retired) {
+            circleBorder = 'var(--retired-main-border)';
+            badgeBg = 'var(--retired-main-bg)';
+            badgeFg = `var(--${colorVarName}-foreground)`;
+            tipText = `${m} ${t}（已退休，等同 ${displayTier}）`;
+        } else if (penalty) {
+            circleBorder = 'var(--p-tier)';
+            badgeBg = 'var(--p-tier)';
+            badgeFg = 'var(--p-tier-foreground)';
+            tipText = `${m} ${t} = ${TIER_SCORE[t] ?? 0}积分（惩罚，等同 ${displayTier}）`;
+        } else {
+            circleBorder = `var(--${colorVarName})`;
+            badgeBg = `var(--${colorVarName})`;
+            badgeFg = `var(--${colorVarName}-foreground)`;
+            tipText = `${m} ${t} = ${TIER_SCORE[t] ?? 0}积分`;
+        }
+
+        slotsHtml += `<span class="tier-slot${retired ? ' retired-main' : ''}" title="${tipText}">
+            <span class="tier-slot-circle" style="border-color: ${circleBorder};">
+                <img src="${iconUrl}" alt="${m}" loading="lazy" onerror="this.style.display='none';">
+            </span>
+            <strong class="tier-slot-badge" style="background: ${badgeBg}; color: ${badgeFg};">${displayTier}</strong>
+        </span>`;
+    });
+
+    return `
+    <div class="player-row" data-id="${item.id}">
+        <div class="w-full flex gap-2 items-center h-full max-md:flex-col">
+            <div class="w-full h-full flex gap-2 items-center">
+                <div class="max-w-44 w-full h-16 flex items-center p-2 relative overflow-clip rounded-sm" style="min-width: 176px;">
+                    <img class="placement-bg" alt="shimmer" src="${shimmerSrc}">
+                    <h1 class="rank-number">${realRank}.</h1>
+                    ${skinImgHtml}
+                </div>
+                <div class="w-72 truncate" style="min-width: 220px;">
+                    <h2 class="player-name">${nameHtml}</h2>
+                    <h3 class="flex gap-1 items-center text-disabled" style="font-size: 0.88rem;">
+                        ${buildOverallTierIconImg(tierInfo.name)}
+                        <i class="fa-solid ${info.icon}" style="color: ${info.color}; font-size: 14px; display:none;"></i>
+                        <span class="truncate text-slate-400">${tierInfo.name} <span class="text-slate-600">(${item.total} points)</span></span>
+                    </h3>
+                </div>
+                <div class="h-[70px] flex items-center justify-center px-3 mr-1 ml-auto md:hidden">
+                    <span class="region-tag" style="background: ${regionColor.bg}; color: ${regionColor.fg};">${escapeHtml(region)}</span>
+                </div>
+            </div>
+            <div class="ml-auto h-full flex w-fit max-md:flex max-md:flex-wrap max-md:justify-between max-md:w-full max-md:px-1 max-md:py-2">
+                <div class="h-[70px] flex items-center justify-center px-3 mr-1 ml-auto max-md:hidden" style="min-width: 130px;">
+                    <span class="region-tag" style="background: ${regionColor.bg}; color: ${regionColor.fg};">${escapeHtml(region)}</span>
+                </div>
+                <div class="space-y-1 w-full h-full flex md:items-center justify-center flex-col px-2">
+                    <h2 class="overall_player__label">Top Tiers</h2>
+                    <div class="overall_player__slots-wrapper max-sm:flex-wrap">
+                        ${slotsHtml}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ============================================================
+// 模式分列视图
+// ============================================================
+function renderModePage(mode) {
+    const container = document.getElementById("playerTableBody");
+    if (sentinelObserver) { sentinelObserver.disconnect(); sentinelObserver = null; }
+
+    let fullData = playerList.filter(item => item && item.name).map(item => {
+        const rawTotal = calcTotal(item);
+        return { ...item, total: Math.max(0, rawTotal) };
+    });
+    fullData.sort((a, b) => b.total - a.total);
+
+    const filterData = applySearch(fullData);
+
+    let columnsHtml = '';
+    [1,2,3,4,5].forEach(tier => {
+        const bucket = getTierBucketPlayers(filterData, mode, tier);
+        const tierVarName = 'ht' + tier;
+        const tierColor = `var(--${tierVarName}-foreground)`;
+        const tierBg = `var(--${tierVarName})`;
+
+        let playersHtml = '';
+        if (bucket.length) {
+            bucket.forEach((p, i) => {
+                const tierVal = getModeTier(p, mode);
+                const high = isHighTier(tierVal);
+                const retired = isRetiredTier(tierVal);
+                const penalty = isPenaltyTier(tierVal);
+                const nameHtml = getPlayerNameHtml(p);
+                const skinImgHtml = buildSkinImgHtml(p, 'size-8 rounded-md object-contain flex-shrink-0', {
+                    alt: escapeHtml(cleanPlayerName(p.name)) + '的皮肤',
+                    size: 32
+                });
+
+                const displayTierVal = (retired || penalty) ? getBaseTier(tierVal) : tierVal;
+
+                let badgeBg, badgeFg, badgeStyle = '';
+                if (retired) {
+                    badgeBg = 'var(--retired)'; badgeFg = 'var(--retired-foreground)'; badgeStyle = 'opacity: 0.9;';
+                } else if (penalty) {
+                    badgeBg = 'var(--p-tier)'; badgeFg = 'var(--p-tier-foreground)';
+                } else if (high) {
+                    badgeBg = 'rgba(255,255,255,0.1)'; badgeFg = '#fff';
+                } else {
+                    badgeBg = 'rgba(100,110,125,0.1)'; badgeFg = '#737d8e';
+                }
+
+                playersHtml += `
+                    <div class="mode-player-row flex items-center gap-2 px-3 py-2 border-b border-[#27303f] cursor-pointer transition hover:bg-[rgba(155,187,245,0.08)]" data-id="${p.id}">
+                        <span class="w-5 text-center text-xs text-slate-500 flex-shrink-0 font-semibold">${i+1}</span>
+                        ${skinImgHtml}
+                        <span class="text-sm font-bold flex-1 truncate ${high ? 'text-slate-100' : 'text-slate-400'}">${nameHtml}</span>
+                        <span class="text-xs font-black px-1.5 py-0.5 rounded-md flex-shrink-0" style="background: ${badgeBg}; color: ${badgeFg}; ${badgeStyle}">${getModeTierDisplay(displayTierVal)}</span>
+                    </div>`;
+            });
+        } else {
+            playersHtml = '<div class="py-5 text-center text-slate-600 text-xs">暂无玩家</div>';
+        }
+
+        columnsHtml += `
+            <div class="rounded-md overflow-hidden border" style="background: rgba(15,21,31,0.88); border-color: #202938; min-height: 500px;">
+                <div class="mode-col-header flex items-center justify-center gap-2 font-black border-b-2" style="color: ${tierColor}; background: linear-gradient(180deg, ${tierBg}33, transparent); border-color: ${tierBg};">
+                    🏆 Tier ${tier}
+                    <span class="text-xs font-bold opacity-70">${bucket.length}人</span>
+                </div>
+                <div class="py-1">${playersHtml}</div>
+            </div>`;
+    });
+
+    container.innerHTML = `
+        <div class="bg-card border-2 border-border rounded-lg p-5 mb-5">
+            <div class="flex justify-between items-center gap-3 mb-3 flex-wrap">
+                <h3 class="text-xl font-black text-white flex items-center gap-2">
+                    <img src="${getModeIconUrl(mode)}" class="size-7 object-contain" onerror="this.style.display='none';">
+                    ${mode} Tier Ranking
+                </h3>
+                <span class="text-sm text-muted-foreground"> ${mode} 模式段位</span>
+            </div>
+            <div class="overflow-x-auto">
+                <div class="mode-board-grid">
+                    ${columnsHtml}
+                </div>
+            </div>
+        </div>`;
+
+    hydrateAvatars(container);
+}
+
+// ============================================================
+// API 操作
+// ============================================================
+async function loadAllPlayers() {
+    try {
+        const res = await fetch(`${API_BASE}/api/all`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const resData = await res.json();
+        if (!resData.success) throw new Error(resData.msg || "加载失败");
+        playerList = resData.data || [];
+        renderTable();
+    } catch (err) {
+        document.getElementById("playerTableBody").innerHTML =
+            `<div class="empty-tip">⚠️ 加载失败：${err.message}</div>`;
+    }
+}
+
+async function submitPlayerForm(e) {
+    e.preventDefault();
+    const rawName = document.getElementById('form_name').value.trim();
+    let name = rawName;
+    if (rawName.includes('|')) { name = rawName.split('|')[0].trim(); }
+
+    const data = {
+        name: name,
+        region: document.getElementById('form_region').value,
+        color: document.getElementById('form_color').value.trim(),
+        customAvatar: document.getElementById('form_avatar').value || ''
+    };
+
+    for (const m of MODES) {
+        const sel = document.getElementById(`form_${m}`);
+        const val = sel.value;
+        if (!ALL_TIERS.includes(val)) { alert(`${m}模式段位「${val}」不合法，请重新选择`); return; }
+        data[m] = val;
+    }
+
+    if (data.Bedwars !== undefined) { data.BedWars = data.Bedwars; }
+
+    try {
+        const res = await fetch(`${API_BASE}/api/save`, {
+            method: "POST", mode: "cors",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(data)
+        });
+        const text = await res.text();
+        let ret;
+        try { ret = JSON.parse(text); } catch (e) { throw new Error("服务器返回非JSON: " + text); }
+        if (!ret.success) throw new Error(ret.msg || "保存失败");
+        closeEditModalFn();
+        Object.keys(premiumCache).forEach(k => delete premiumCache[k]);
+        await loadAllPlayers();
+        alert("✅ 操作成功！");
+    } catch (err) { alert("❌ 操作失败：" + err.message); }
+}
+
+async function deletePlayer(id, name) {
+    if (!confirm(`确定删除【${name}】？`)) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/del`, {
+            method: "POST", mode: "cors",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ name })
+        });
+        const text = await res.text();
+        let ret;
+        try { ret = JSON.parse(text); } catch (e) { throw new Error("服务器返回非JSON: " + text); }
+        if (!ret.success) throw new Error(ret.msg || "删除失败");
+        closeDetail();
+        await loadAllPlayers();
+        alert("删除成功");
+    } catch (err) { alert("删除失败：" + err.message); }
+}
+
+// ============================================================
+// 详情弹窗
+// ============================================================
+function openDetail(player) {
+    currentViewPlayer = player;
+    const total = player.total !== undefined ? player.total : calcTotal(player);
+    const tierInfo = getTierInfo(total);
+
+    const flipWrapper = document.getElementById('detailFlipWrapper');
+    if (flipWrapper) flipWrapper.classList.remove('flipped');
+
+    document.getElementById("detailName").innerHTML = getPlayerNameHtml(player);
+    document.getElementById("detailRegion").innerText = player.region ?? "未填写";
+
+    const tierNameEl = document.getElementById("detailTierText");
+    tierNameEl.innerText = tierInfo.name;
+    tierNameEl.className = "mctiers-overall-tier " + tierInfo.cls;
+    document.getElementById("detailTotal").innerText = total;
+
+    const sorted = [...playerList].filter(p => p && p.name).map(p => {
+        const raw = calcTotal(p);
+        return { ...p, total: Math.max(0, raw) };
+    }).sort((a, b) => b.total - a.total);
+    const rank = sorted.findIndex(p => p.id === player.id) + 1;
+
+    let rankHtml = `<span class="rank-badge">#${rank}</span>`;
+    if (rank === 1) rankHtml = `<span class="rank-badge gold"><i class="fa-solid fa-crown"></i>#${rank}</span>`;
+    else if (rank === 2) rankHtml = `<span class="rank-badge silver"><i class="fa-solid fa-medal"></i>#${rank}</span>`;
+    else if (rank === 3) rankHtml = `<span class="rank-badge bronze"><i class="fa-solid fa-award"></i>#${rank}</span>`;
+    document.getElementById("detailRank").innerHTML = rankHtml;
+
+    hydrateSingleAvatar(document.getElementById("detailAvatar"), player);
+
+    const grid = document.getElementById("detailGrid");
+    grid.innerHTML = "";
+    MODES.forEach(m => {
+        const t = getModeTier(player, m);
+        const score = TIER_SCORE[t] ?? 0;
+        const retired = isRetiredTier(t);
+        const penalty = isPenaltyTier(t);
+        let tierClass = "tier--";
+        if (t !== "-") {
+            if (retired) tierClass = "tier-RHT1";
+            else if (penalty) tierClass = "tier-PLT1";
+            else tierClass = `tier-${t}`;
+        }
+        const div = document.createElement("div");
+        div.className = "mctiers-mode-card" + (t === "-" ? " empty" : "");
+        div.innerHTML = `
+            <div class="mc-mode-name">
+                <img src="${getModeIconUrl(m)}" onerror="this.style.display='none';">
+                ${m}
+            </div>
+            <div class="mc-mode-tier ${tierClass}">${t}</div>
+            <div class="mc-mode-pts">${score} pts</div>
+        `;
+        grid.appendChild(div);
+    });
+
+    const adminBtns = document.getElementById("detailAdminBtns");
+    if (isAdmin) adminBtns.classList.add("show");
+    else adminBtns.classList.remove("show");
+
+    document.getElementById("detailModal").classList.add("show");
+}
+
+function closeDetail() {
+    const box = document.querySelector("#detailModal .modal-box");
+    box.classList.add("closing");
+    setTimeout(() => {
+        document.getElementById("detailModal").classList.remove("show");
+        box.classList.remove("closing");
+    }, 250);
+}
+
+// ============================================================
+// 复制工具 + Toast
+// ============================================================
+function showToast(msg, type = 'success') {
+    const toast = document.createElement('div');
+    const bg = type === 'error' ? 'rgba(255,101,104,0.95)' : 'rgba(30,41,57,0.98)';
+    const border = type === 'error' ? 'rgba(255,101,104,0.5)' : 'rgba(155,187,245,0.35)';
+    toast.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(8px);background:${bg};color:#fff;padding:0.8rem 1.6rem;border-radius:0.7rem;z-index:9999;border:1px solid ${border};font-weight:600;font-size:0.9rem;box-shadow:0 8px 28px rgba(0,0,0,0.45);opacity:0;transition:opacity 0.25s ease, transform 0.25s ease;`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(8px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 1600);
+}
+
+async function copyToClipboard(text, successMsg) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-9999px';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) { throw e; }
+            document.body.removeChild(ta);
+        }
+        showToast(successMsg || '已复制到剪贴板');
+        return true;
+    } catch (e) {
+        showToast('复制失败：' + (e.message || '未知错误'), 'error');
+        return false;
+    }
+}
+
+// ============================================================
+// 编辑弹窗
+// ============================================================
+function openEditModal(player = null) {
+    document.getElementById("editModal").classList.add("show");
+    const form = document.getElementById("playerEditForm");
+    form.reset();
+    updateColorPreview();
+
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarUpload = document.getElementById('avatarUpload');
+    const formAvatar = document.getElementById('form_avatar');
+    if (avatarPreview) { avatarPreview.style.display = 'none'; avatarPreview.src = ''; }
+    if (avatarUpload) avatarUpload.value = '';
+    if (formAvatar) formAvatar.value = '';
+
+    if (player) {
+        document.getElementById("editModalTitle").innerText = "编辑玩家";
+        document.getElementById("editId").value = player.id;
+        document.getElementById('form_name').value = player.name ?? '';
+        document.getElementById('form_region').value = player.region ?? '其它';
+        document.getElementById('form_color').value = player.color ?? '';
+        updateColorPreview();
+
+        if (player.customAvatar && player.customAvatar.startsWith('data:image')) {
+            avatarPreview.src = player.customAvatar;
+            avatarPreview.style.display = 'block';
+            formAvatar.value = player.customAvatar;
+        }
+
+        MODES.forEach(m => {
+            const sel = document.getElementById(`form_${m}`);
+            let value = getModeTier(player, m);
+            if (!ALL_TIERS.includes(value)) { value = "-"; }
+            sel.value = value;
+        });
+    } else {
+        document.getElementById("editModalTitle").innerText = "新增玩家";
+        document.getElementById("editId").value = '';
+        document.getElementById('form_region').value = '其它';
+        document.getElementById('form_color').value = '';
+        updateColorPreview();
+        MODES.forEach(m => {
+            const sel = document.getElementById(`form_${m}`);
+            if (sel) sel.value = '-';
+        });
+    }
+}
+
+function closeEditModalFn() {
+    const box = document.querySelector("#editModal .modal-box");
+    box.classList.add("closing");
+    setTimeout(() => {
+        document.getElementById("editModal").classList.remove("show");
+        box.classList.remove("closing");
+    }, 250);
+}
+
+// ============================================================
+// 管理员验证
+// ============================================================
+function openAdminPwdModal() {
+    document.getElementById("adminPwdModal").classList.add("show");
+    document.getElementById("adminPwdInput").value = "";
+}
+function closeAdminPwdModalFn() {
+    const box = document.querySelector("#adminPwdModal .modal-box");
+    box.classList.add("closing");
+    setTimeout(() => {
+        document.getElementById("adminPwdModal").classList.remove("show");
+        box.classList.remove("closing");
+    }, 250);
+}
+function verifyAdminPwd() {
+    const pwd = document.getElementById("adminPwdInput").value.trim();
+    if (pwd === ADMIN_PASSWORD) {
+        isAdmin = true;
+        document.getElementById("addPlayerBtn").classList.remove("hidden");
+        document.getElementById("adminTip").classList.remove("hidden");
+        closeAdminPwdModalFn();
+        renderTable();
+        alert("管理员权限已解锁");
+    } else { alert("密码错误"); }
+}
+
+// ============================================================
+// 辅助工具
+// ============================================================
+function updateColorPreview() {
+    const val = document.getElementById('form_color').value.trim();
+    const preview = document.getElementById("colorPreview");
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) { preview.style.background = val; }
+    else { preview.style.background = "transparent"; }
+}
+
+function initTierSelects() {
+    MODES.forEach(m => {
+        const sel = document.getElementById(`form_${m}`);
+        if (!sel) return;
+        sel.innerHTML = "";
+        ALL_TIERS.forEach(t => {
+            const opt = document.createElement("option");
+            opt.value = t; opt.innerText = t;
+            sel.appendChild(opt);
+        });
+    });
+}
+
+function buildModeFormGrid() {
+    const grid = document.getElementById("modeFormGrid");
+    grid.innerHTML = "";
+    MODES.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "form-item";
+        div.innerHTML = `<label>${m}</label><select id="form_${m}"></select>`;
+        grid.appendChild(div);
+    });
+    initTierSelects();
+}
+
+function initRegionSelect() {
+    const sel = document.getElementById('form_region');
+    sel.innerHTML = "";
+    REGION_LIST.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r; opt.innerText = r;
+        sel.appendChild(opt);
+    });
+}
+
+function setupAvatarUpload() {
+    const avatarUpload = document.getElementById('avatarUpload');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const formAvatar = document.getElementById('form_avatar');
+    if (!avatarUpload || !avatarPreview || !formAvatar) return;
+
+    avatarUpload.addEventListener('change', function(e) {
+        const file = this.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('请上传图片文件'); this.value = ''; return; }
+        if (file.size > 2 * 1024 * 1024) { alert('图片大小不能超过 2MB'); this.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const base64 = ev.target.result;
+            avatarPreview.src = base64;
+            avatarPreview.style.display = 'block';
+            formAvatar.value = base64;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function openTierInfoModal() {
+    const grid = document.getElementById('tierScoreGrid');
+    grid.innerHTML = '';
+    const sorted = Object.entries(TIER_SCORE)
+        .filter(([k, v]) => k !== '-')
+        .sort((a, b) => b[1] - a[1]);
+    sorted.forEach(([tier, score]) => {
+        const div = document.createElement('div');
+        div.className = 'tier-score-item';
+        let colorClass = 'tier--';
+        if (isRetiredTier(tier)) colorClass = 'tier-RHT1';
+        else if (isPenaltyTier(tier)) colorClass = 'tier-PLT1';
+        else if (tier.startsWith('HT')) colorClass = `tier-${tier}`;
+        else if (tier.startsWith('LT')) colorClass = `tier-${tier}`;
+        div.innerHTML = `<div class="tier-name ${colorClass}">${tier}</div><div class="tier-pts">${score} 分</div>`;
+        grid.appendChild(div);
+    });
+    const divDash = document.createElement('div');
+    divDash.className = 'tier-score-item';
+    divDash.innerHTML = `<div class="tier-name tier--">-</div><div class="tier-pts">0 分</div>`;
+    grid.appendChild(divDash);
+    document.getElementById('tierInfoModal').classList.add("show");
+}
+
+function closeTierInfoModal() {
+    const box = document.querySelector('#tierInfoModal .modal-box');
+    box.classList.add("closing");
+    setTimeout(() => {
+        document.getElementById('tierInfoModal').classList.remove("show");
+        box.classList.remove("closing");
+    }, 250);
+}
+
+// ============================================================
+// 隐藏管理员入口
+// ============================================================
+function initHiddenAdminEntry() {
+    const title = document.getElementById('siteTitle');
+    if (!title) return;
+
+    let count = 0;
+    let timer = null;
+
+    function handle() {
+        count++;
+        clearTimeout(timer);
+        timer = setTimeout(() => { count = 0; }, 1500);
+
+        if (count >= 3) {
+            count = 0;
+            clearTimeout(timer);
+            if (navigator.vibrate) navigator.vibrate(30);
+            openAdminPwdModal();
+        }
+    }
+
+    title.addEventListener('click', handle);
+    title.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        handle();
+    }, { passive: false });
+}
+
+// ============================================================
+// 事件绑定
+// ============================================================
+function bindEvents() {
+    initRegionSelect();
+    setupAvatarUpload();
+    initHiddenAdminEntry();
+
+    document.getElementById('form_color').addEventListener("input", updateColorPreview);
+
+    document.getElementById("closeAdminPwdModal").onclick = closeAdminPwdModalFn;
+    document.getElementById("cancelAdminPwd").onclick = closeAdminPwdModalFn;
+    document.getElementById("adminPwdModal").addEventListener("click", e => {
+        if (e.target === e.currentTarget) closeAdminPwdModalFn();
+    });
+    document.getElementById("confirmAdminPwd").onclick = verifyAdminPwd;
+    document.getElementById("adminPwdInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") verifyAdminPwd();
+    });
+
+    document.getElementById("addPlayerBtn").onclick = () => openEditModal(null);
+
+    document.getElementById("closeDetail").onclick = closeDetail;
+    document.getElementById("detailModal").addEventListener("click", e => {
+        if (e.target === e.currentTarget) closeDetail();
+    });
+    document.getElementById("detailEditBtn").onclick = () => {
+        closeDetail();
+        setTimeout(() => openEditModal(currentViewPlayer), 300);
+    };
+    document.getElementById("detailDelBtn").onclick = () => {
+        deletePlayer(currentViewPlayer.id, currentViewPlayer.name);
+    };
+
+    document.getElementById("closeEditModal").onclick = closeEditModalFn;
+    document.getElementById("cancelEdit").onclick = closeEditModalFn;
+    document.getElementById("editModal").addEventListener("click", e => {
+        if (e.target === e.currentTarget) closeEditModalFn();
+    });
+    document.getElementById("playerEditForm").onsubmit = submitPlayerForm;
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            closeDetail(); closeEditModalFn(); closeAdminPwdModalFn(); closeTierInfoModal();
+        }
+        if (e.key === "/" && document.activeElement !== document.getElementById('searchBox')) {
+            e.preventDefault();
+            document.getElementById('searchBox').focus();
+        }
+    });
+
+    document.getElementById("searchBox").addEventListener("input", e => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            searchKeyword = e.target.value;
+            renderTable();
+        }, 200);
+    });
+
+    document.getElementById("tierInfoBtn").addEventListener("click", openTierInfoModal);
+    document.getElementById("closeTierInfo").addEventListener("click", closeTierInfoModal);
+    document.getElementById("closeTierInfoBtn").addEventListener("click", closeTierInfoModal);
+    document.getElementById("tierInfoModal").addEventListener("click", e => {
+        if (e.target === e.currentTarget) closeTierInfoModal();
+    });
+
+    document.getElementById("playerTableBody").addEventListener("click", (e) => {
+        const row = e.target.closest('.player-row');
+        const modeRow = e.target.closest('.mode-player-row');
+        const target = row || modeRow;
+        if (!target) return;
+        const id = Number(target.dataset.id);
+        const player = playerList.find(p => p.id === id);
+        if (player) openDetail(player);
+    });
+
+    const flipWrapper = document.getElementById('detailFlipWrapper');
+    if (flipWrapper) {
+        flipWrapper.addEventListener('click', () => {
+            flipWrapper.classList.toggle('flipped');
+        });
+    }
+
+    const copyIdBtn = document.getElementById('copyIdBtn');
+    if (copyIdBtn) {
+        copyIdBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!currentViewPlayer) return;
+            const idText = cleanPlayerName(currentViewPlayer.name);
+            copyToClipboard(idText, `已复制玩家ID：${idText}`);
+        });
+    }
+
+    const copyDataBtn = document.getElementById('copyDataBtn');
+    if (copyDataBtn) {
+        copyDataBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!currentViewPlayer) return;
+            const dataText = JSON.stringify(currentViewPlayer, null, 2);
+            copyToClipboard(dataText, '已复制该玩家的API数据');
+        });
+    }
+}
+
+// ============================================================
+// 启动
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    buildTierTabs();
+    buildModeFormGrid();
+    bindEvents();
+    loadAllPlayers();
+});
+</script>
+</body>
+</html>

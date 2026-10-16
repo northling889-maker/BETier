@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>PETier API 文档</title>
+<style>
+:root{--bg:#0d1117;--panel:#111821;--panel2:#161f2b;--line:#283443;--text:#e6edf3;--muted:#9aa9ba;--accent:#7cafff;--green:#52d49a;--red:#ff7b86;--yellow:#f2c66d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#1b2634;color:var(--text);padding:9px 12px;border-radius:8px}button:hover{border-color:#6688b4}button.primary{background:#2d69bd;border-color:#2d69bd;color:#fff}button.danger{border-color:#713943;color:#ffb5bc}button:disabled{opacity:.45;cursor:not-allowed}
+.top{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;background:#0d1117ed;backdrop-filter:blur(12px);z-index:5}.brand{font-weight:800;font-size:18px;letter-spacing:.2px}.brand span{color:var(--accent)}.topright{display:flex;align-items:center;gap:10px}.pill{font-size:12px;border:1px solid var(--line);padding:4px 8px;border-radius:999px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1440px;margin:auto;min-height:calc(100vh - 62px)}aside{border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:62px;height:calc(100vh - 62px);overflow:auto}.navtitle{font-size:11px;color:#718198;text-transform:uppercase;letter-spacing:1.2px;padding:12px 10px 6px}.nav{display:block;width:100%;text-align:left;background:transparent;border:0;color:#aebccc;padding:8px 10px;border-radius:7px}.nav.active,.nav:hover{background:#19283a;color:#fff}.nav .method{display:inline-block;font-size:9px;font-weight:800;min-width:35px;margin-right:6px}.GET{color:#55d9a3}.POST{color:#7eb4ff}.PUT{color:#f2c66d}.DELETE{color:#ff818c}
+main{padding:34px clamp(18px,4vw,54px);min-width:0;max-width:1100px}.eyebrow{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase}h1{font-size:34px;line-height:1.2;margin:8px 0 14px}h2{font-size:22px;margin:32px 0 10px}h3{font-size:16px;margin:20px 0 8px}p{color:#b5c1ce}.lead{font-size:16px;max-width:780px}.card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:18px;margin:16px 0}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.between{justify-content:space-between}.endpoint{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}.verb{font-size:11px;font-weight:800;border-radius:5px;padding:4px 7px;background:#1b3d32;color:#67e0ad}.verb.post{background:#1d3150;color:#8bbdff}.verb.put{background:#45391e;color:#f2ce75}.verb.delete{background:#4a252d;color:#ff9da7}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}code{color:#b9d7ff;background:#1b2634;padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a0f15;border:1px solid #202b38;border-radius:9px;padding:14px;color:#c7d5e5;overflow:auto;font-size:12px}.muted{color:var(--muted)}label{display:block;color:#c6d1de;margin:10px 0 5px}input,select,textarea{width:100%;background:#0b1118;border:1px solid #334154;color:var(--text);border-radius:8px;padding:10px;outline:none}input:focus,select:focus,textarea:focus{border-color:#649de8}textarea{min-height:125px;resize:vertical}.field{min-width:180px;flex:1}.field.small{max-width:180px}.status{padding:10px 12px;border-radius:8px;background:#172332;color:#aebccc;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status.ok{background:#102a22;color:#81e4b8}.status.err{background:#321a20;color:#ffabb3}.hidden{display:none!important}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:#91a2b7;font-weight:600}td{color:#d6e0ea}.tiny{font-size:12px}.tag{display:inline-block;padding:3px 7px;border-radius:5px;background:#1a2939;color:#a9cfff;margin:2px}.endpointbox{padding:12px;border:1px solid var(--line);background:#0a1017;border-radius:8px;margin:12px 0}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.notice{border-left:3px solid var(--yellow);padding:10px 13px;background:#211e16;color:#d8cba8;border-radius:0 7px 7px 0}.modalback{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}.modal{width:min(430px,100%);background:#111821;border:1px solid #334154;border-radius:14px;padding:22px;box-shadow:0 20px 70px #0008}.modal h2{margin:0 0 6px}.modal p{margin-top:0}.playerrow{cursor:pointer}.playerrow:hover{background:#182332}.tiergrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tierfield{border:1px solid var(--line);border-radius:8px;padding:10px}.tierfield label{margin-top:0}.tierfield .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}.foot{border-top:1px solid var(--line);margin-top:44px;padding-top:18px;color:#75859a;font-size:12px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px;display:flex;overflow:auto;gap:5px}.navtitle{display:none}.nav{white-space:nowrap;width:auto}.nav .method{display:none}main{padding:25px 16px}h1{font-size:28px}.split{grid-template-columns:1fr}.tiergrid{grid-template-columns:1fr}.top{padding:0 14px}.pill{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">PE<span>Tier</span> <span style="color:#91a2b7;font-weight:500">API 文档</span></div>
+  <div class="topright"><span id="authPill" class="pill">公开访问</span><button id="loginTop" class="primary">管理员登录</button></div>
+</header>
+<div class="layout">
+<aside>
+  <div>
+    <div class="navtitle">开始使用</div>
+    <button class="nav active" data-page="overview">文档概览</button>
+    <button class="nav" data-page="auth">身份验证</button>
+    <div class="navtitle">接口参考</div>
+    <button class="nav" data-page="list"><span class="method GET">GET</span>获取玩家列表</button>
+    <button class="nav" data-page="get"><span class="method GET">GET</span>获取单个玩家</button>
+    <button class="nav" data-page="modes"><span class="method GET">GET</span>游戏模式与等级</button>
+    <button class="nav" data-page="create"><span class="method POST">POST</span>添加玩家</button>
+    <button class="nav" data-page="update"><span class="method PUT">PUT</span>修改玩家</button>
+    <button class="nav" data-page="delete"><span class="method DELETE">DELETE</span>删除玩家</button>
+    <button class="nav" data-page="password"><span class="method POST">POST</span>修改密码</button>
+    <div class="navtitle">交互工具</div>
+    <button class="nav" data-page="explorer">玩家查询</button>
+    <button class="nav" data-page="editor">管理面板 🔒</button>
+  </div>
+</aside>
+<main>
+<section class="page" id="page-overview">
+  <div class="eyebrow">开发者文档</div>
+  <h1>PETier API 文档</h1>
+  <p class="lead">通过 PETier API 查询玩家排名、游戏模式与 Tier 数据。公开接口无需登录即可测试；添加、修改和删除数据等操作需要管理员身份验证。</p>
+  <div class="card">
+    <div class="muted tiny">接口基础地址</div>
+    <div class="row between"><code id="baseDisplay">https://petierapi.ccwu.cc</code><span class="pill">HTTPS</span></div>
+    <p class="tiny">下方接口路径均以此地址为基础。</p>
+    <label for="baseUrl">API 基础地址</label><input id="baseUrl" value="https://petierapi.ccwu.cc" spellcheck="false">
+    <div class="row" style="margin-top:10px"><button id="saveBase">保存地址</button><button id="checkApi">测试连接</button></div>
+    <div id="baseStatus" class="status hidden"></div>
+  </div>
+  <h2>快速开始</h2>
+  <div class="card"><div class="endpoint"><span class="verb">GET</span><span>/api/players</span></div><p>获取一页玩家资料及其 Tier 信息。</p><pre>curl "https://petierapi.ccwu.cc/api/players?page=1&limit=20"</pre><button class="primary" data-goto="explorer">打开玩家查询</button></div>
+  <div class="notice">本页面会调用现有后端接口，不会创建或修改服务器路由。只有后端请求成功后，数据变更才会生效。</div>
+  <h2>可用接口</h2>
+  <div class="tablewrap"><table><thead><tr><th>方法</th><th>接口路径</th><th>用途</th><th>权限</th></tr></thead><tbody>
+  <tr><td class="GET">GET</td><td><code>/api/players</code></td><td>获取及筛选玩家</td><td>公开</td></tr>
+  <tr><td class="GET">GET</td><td><code>/api/players/:id</code></td><td>获取单个玩家</td><td>公开</td></tr>
+  <tr><td class="GET">GET</td><td><code>/api/modes</code></td><td>获取游戏模式与等级列表</td><td>公开</td></tr>
+  <tr><td class="POST">POST</td><td><code>/api/auth/login</code></td><td>管理员登录</td><td>账号密码</td></tr>
+  <tr><td class="POST">POST</td><td><code>/api/players</code></td><td>添加玩家</td><td>管理员</td></tr>
+  <tr><td class="PUT">PUT</td><td><code>/api/players/:id</code></td><td>修改玩家</td><td>管理员</td></tr>
+  <tr><td class="DELETE">DELETE</td><td><code>/api/players/:id</code></td><td>删除玩家</td><td>管理员</td></tr>
+  <tr><td class="POST">POST</td><td><code>/api/auth/change-password</code></td><td>修改密码</td><td>管理员</td></tr>
+  </tbody></table></div>
+</section>
+<section class="page hidden" id="page-auth">
+  <div class="eyebrow">安全与权限</div><h1>身份验证</h1>
+  <p>管理员登录使用现有的 <code>POST /api/auth/login</code> 接口。登录成功后，服务器会返回 JWT Token；执行写入操作时，需要在请求中携带该 Token。</p>
+  <div class="card"><div class="endpoint"><span class="verb post">POST</span><code>/api/auth/login</code></div><pre>{
+  "username": "your-admin-username",
+  "password": "your-admin-password"
+}</pre><p>成功响应示例：</p><pre>{ "token": "JWT_TOKEN" }</pre><button class="primary" id="loginAuth">打开管理员登录</button></div>
+  <h2>携带身份令牌</h2><pre>Authorization: Bearer YOUR_JWT_TOKEN</pre>
+  <p class="muted">当前后端签发的 Token 有效期为七天。退出登录会清除本页面保存的 Token，但无法让已经复制到其他地方的 Token 立即失效。</p>
+  <div class="notice">请勿向他人提供管理员密码或 JWT Token。正式使用前，请确认 Cloudflare Worker 已设置安全的 JWT_SECRET，而不是使用代码中的默认密钥。</div>
+</section>
+<section class="page hidden" id="page-list">
+  <div class="eyebrow">接口说明</div><h1>获取玩家列表</h1><div class="endpointbox"><span class="verb">GET</span> <code>/api/players</code></div>
+  <p>返回分页数据，包含 <code>total</code>、<code>page</code>、<code>limit</code> 和 <code>players</code> 字段。</p>
+  <h3>查询参数</h3><div class="tablewrap"><table><tbody><tr><th>参数</th><th>类型</th><th>说明</th></tr><tr><td>search</td><td>string</td><td>按玩家名称进行模糊搜索</td></tr><tr><td>region</td><td>string</td><td>按地区筛选</td></tr><tr><td>mode</td><td>string</td><td>游戏模式代码，例如 <code>sword</code></td></tr><tr><td>tier</td><td>string</td><td>需同时提供 mode 才能按等级筛选</td></tr><tr><td>sort</td><td>id/name/tier</td><td>排序字段</td></tr><tr><td>order</td><td>asc/desc</td><td>排序方向</td></tr><tr><td>page</td><td>integer</td><td>页码，默认为 1</td></tr><tr><td>limit</td><td>integer</td><td>每页数量，范围 1–200，默认 50</td></tr></tbody></table></div>
+  <pre>GET /api/players?search=North&mode=sword&tier=HT1&page=1&limit=50</pre><button class="primary" data-goto="explorer">前往玩家查询进行测试</button>
+</section>
+<section class="page hidden" id="page-get">
+  <div class="eyebrow">接口说明</div><h1>获取单个玩家</h1><div class="endpointbox"><span class="verb">GET</span> <code>/api/players/:id</code></div>
+  <p>根据数字 ID 获取玩家资料及各游戏模式的 Tier 信息。</p><label>玩家 ID</label><input id="getId" type="number" min="1" value="1"><button class="primary" id="runGet" style="margin-top:10px">发送请求</button><div id="getResult" class="status hidden"></div><pre>Success: { "player": { "id": 1, "name": "...", "tiers": {} } }</pre>
+</section>
+<section class="page hidden" id="page-modes">
+  <div class="eyebrow">接口说明</div><h1>游戏模式与等级</h1><div class="endpointbox"><span class="verb">GET</span> <code>/api/modes</code></div><p>按配置的顺序返回游戏模式列表和 Tier 等级列表。</p><button class="primary" id="runModes">获取模式与等级</button><div id="modesResult" class="status hidden"></div><pre>Expected structure: { "modes": [...], "tiers": [...] }</pre>
+</section>
+<section class="page hidden" id="page-create">
+  <div class="eyebrow">管理员接口</div><h1>添加玩家</h1><div class="endpointbox"><span class="verb post">POST</span> <code>/api/players</code> <span class="pill">Admin token required</span></div>
+  <p>创建玩家。玩家名称不能重复；还可以填写颜色、备注、地区及各模式的 Tier。</p>
+  <button class="primary" id="gotoEditorCreate">打开添加玩家表单</button><div id="createInfo" class="status">Sign in first. The interactive form is available in Admin Editor.</div>
+  <pre>{
+  "name": "ExamplePlayer",
+  "color": "#FFFFFF",
+  "note": "",
+  "region": "",
+  "tiers": {
+    "sword": { "tier": "LT3", "peak": "LT3" }
+  }
+}</pre>
+</section>
+<section class="page hidden" id="page-update">
+  <div class="eyebrow">管理员接口</div><h1>修改玩家</h1><div class="endpointbox"><span class="verb put">PUT</span> <code>/api/players/:id</code> <span class="pill">Admin token required</span></div>
+  <p>修改玩家名称、颜色、备注、地区及提交的 Tier 记录。若某个资料字段未提交，后端会在支持的情况下保留原值。</p>
+  <div class="notice">巅峰等级现在可以自由设置：可升级、可降级、可清空。未提交的模式不会改动，提交空值则清除该模式的巅峰。</div>
+  <pre>{
+  "name": "North_Ling",
+  "color": "#FFFFFF",
+  "note": "",
+  "region": "",
+  "tiers": {
+    "sword": { "tier": "HT1", "peak": "HT1" },
+    "axe": { "tier": "LT2", "peak": "LT2" }
+  }
+}</pre>
+  <button class="primary" data-goto="editor">打开管理面板</button>
+</section>
+<section class="page hidden" id="page-delete">
+  <div class="eyebrow">管理员接口</div><h1>删除玩家</h1><div class="endpointbox"><span class="verb delete">DELETE</span> <code>/api/players/:id</code> <span class="pill">Admin token required</span></div>
+  <p>删除指定玩家。根据数据库表结构，该玩家关联的 Tier 记录也会级联删除。</p><div class="notice">删除操作不可轻易恢复。发送请求前，请再次确认玩家 ID。</div><button class="primary" data-goto="editor">打开管理面板</button>
+</section>
+<section class="page hidden" id="page-password">
+  <div class="eyebrow">管理员接口</div><h1>修改密码</h1><div class="endpointbox"><span class="verb post">POST</span> <code>/api/auth/change-password</code> <span class="pill">Admin token required</span></div>
+  <p>根据当前后端规则，需要提供旧密码；新密码长度至少为六位。</p>
+  <div class="card"><label>当前密码</label><input id="oldPassword" type="password" autocomplete="current-password"><label>新密码</label><input id="newPassword" type="password" autocomplete="new-password"><button class="primary" id="changePassword" style="margin-top:12px">提交修改</button><div id="passwordResult" class="status hidden"></div></div>
+  <pre>{
+  "oldPassword": "current-password",
+  "newPassword": "new-password"
+}</pre>
+</section>
+<section class="page hidden" id="page-explorer">
+  <div class="eyebrow">在线接口工具</div><h1>玩家查询</h1><p>查询后端实时数据。你可以使用筛选条件、查看玩家详情，或登录后编辑资料。</p>
+  <div class="card"><div class="split"><div><label>搜索玩家</label><input id="searchPlayer" placeholder="Player name..."></div><div><label>地区</label><input id="searchRegion" placeholder="Optional region"></div><div><label>游戏模式</label><select id="filterMode"><option value="">All modes</option></select></div><div><label>Tier 等级</label><select id="filterTier"><option value="">All tiers</option></select></div></div><div class="row" style="margin-top:12px"><div class="field small"><label>页码</label><input id="pageNum" type="number" min="1" value="1"></div><div class="field small"><label>每页数量</label><select id="pageLimit"><option>20</option><option selected>50</option><option>100</option><option>200</option></select></div><button class="primary" id="searchBtn" style="margin-top:30px">查询玩家</button></div><div id="explorerStatus" class="status hidden"></div></div>
+  <div class="card"><div class="row between"><strong>查询结果</strong><span class="muted tiny" id="resultCount"></span></div><div class="tablewrap"><table><thead><tr><th>ID</th><th>玩家名称</th><th>地区</th><th>Tier 概览</th><th>操作</th></tr></thead><tbody id="playersBody"><tr><td colspan="5" class="muted">点击“查询玩家”加载数据。</td></tr></tbody></table></div><div class="row" style="margin-top:12px"><button id="prevPage">上一页</button><button id="nextPage">下一页</button><button id="exportJson">导出当前结果 JSON</button></div></div>
+  <div class="card hidden" id="playerDetail"><div class="row between"><h2 style="margin:0">玩家详情</h2><button id="closeDetail">关闭</button></div><div id="playerDetailContent"></div></div>
+</section>
+<section class="page hidden" id="page-editor">
+  <div class="eyebrow">管理员专用工具</div><h1>玩家管理面板</h1><p>登录后，可以通过经过身份验证的后端接口添加、修改或删除玩家资料。</p>
+  <div class="card" id="editorLocked"><h3>请先登录管理员账号</h3><p>使用后端中已配置的管理员账号登录。本页面不会在源代码中写入管理员密码。</p><button class="primary" id="loginEditor">管理员登录</button></div>
+  <div id="editorTools" class="hidden">
+    <div class="card"><div class="row between"><h2 style="margin:0">选择玩家</h2><button id="newPlayerBtn" class="primary">＋ 添加玩家</button></div><div class="row" style="margin-top:10px"><div class="field"><input id="editSearch" placeholder="搜索玩家名称或 ID"></div><button id="loadForEdit">加载玩家列表</button></div><div id="editList" class="status">Load players to choose a record.</div></div>
+    <div class="card"><div class="row between"><h2 style="margin:0" id="formTitle">玩家资料</h2><span id="editingId" class="pill">New player</span></div>
+      <input type="hidden" id="editId">
+      <div class="split"><div><label>玩家名称 *</label><input id="editName" maxlength="80" placeholder="Player name"></div><div><label>名称颜色</label><input id="editColor" type="color" value="#ffffff" style="height:42px;padding:4px"></div><div><label>地区</label><input id="editRegion" placeholder="Region"></div><div><label>备注</label><input id="editNote" placeholder="Optional note"></div></div>
+      <h3>各模式 Tier</h3><p class="tiny muted">如果玩家在某个模式没有等级，请留空。巅峰值可自由设置，也可以留空清除。</p><div class="tiergrid" id="tierEditor"></div>
+      <div class="row" style="margin-top:16px"><button class="primary" id="savePlayer">保存玩家</button><button id="resetForm">重置表单</button><button class="danger" id="deletePlayerBtn" disabled>删除玩家</button></div><div id="saveStatus" class="status hidden"></div>
+    </div>
+  </div>
+</section>
+<div class="foot">PETier API 文档 · 本页面用于调用现有 API。请妥善配置后端身份验证与生产环境密钥。</div>
+</main>
+</div>
+<div id="loginModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+ <div class="modal"><div class="row between"><h2 id="loginTitle">管理员登录</h2><button id="closeLogin" aria-label="Close">✕</button></div><p>请输入 PETier 后端中配置的管理员账号信息。</p><form id="loginForm"><label>管理员用户名</label><input id="loginUsername" autocomplete="username" required><label>管理员密码</label><input id="loginPassword" type="password" autocomplete="current-password" required><div id="loginStatus" class="status hidden"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button type="button" id="cancelLogin">取消</button><button class="primary" type="submit">登录</button></div></form></div>
+</div>
+<script>
+(() => {
+'use strict';
+const DEFAULT_BASE = 'https://petierapi.ccwu.cc';
+const TOKEN_KEY = 'petier_api_admin_token';
+const USER_KEY = 'petier_api_admin_username';
+let base = localStorage.getItem('petier_api_base') || DEFAULT_BASE;
+let token = sessionStorage.getItem(TOKEN_KEY) || '';
+let username = sessionStorage.getItem(USER_KEY) || '';
+let modes = [], tiers = [], currentPlayers = [], currentPage = 1, lastSelected = null;
+
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const showStatus = (el, msg, kind='') => { el.className = 'status' + (kind ? ' '+kind : ''); el.textContent = msg; el.classList.remove('hidden'); };
+const hideStatus = el => el.classList.add('hidden');
+function setBase(value) {
+  const cleaned = value.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\/[^/]+$/i.test(cleaned)) throw new Error('Base URL must be an origin such as https://petierapi.ccwu.cc');
+  base = cleaned; localStorage.setItem('petier_api_base', base); $('baseUrl').value = base; $('baseDisplay').textContent = base;
+}
+function setAuthUI() {
+  $('authPill').textContent = token ? `已登录${username ? '：'+username : ''}` : 'Public access';
+  $('loginTop').textContent = token ? '退出登录' : '管理员登录';
+  $('editorLocked').classList.toggle('hidden', !!token);
+  $('editorTools').classList.toggle('hidden', !token);
+}
+function clearToken() { token=''; username=''; sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); setAuthUI(); }
+async function api(path, options={}) {
+  const headers = new Headers(options.headers || {});
+  if (options.body !== undefined && !headers.has('Content-Type')) headers.set('Content-Type','application/json');
+  if (options.auth !== false && token) headers.set('Authorization', 'Bearer '+token);
+  const response = await fetch(base + path, {...options, headers, body: options.body === undefined ? undefined : JSON.stringify(options.body)});
+  const text = await response.text();
+  let data; try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!response.ok) {
+    const message = data && typeof data === 'object' ? (data.error || data.message || JSON.stringify(data)) : (text || response.statusText);
+    if (response.status === 401 && token) { /* keep token so user can inspect response and retry after sign-in */ }
+    const err = new Error(`HTTP ${response.status}: ${message}`); err.status=response.status; err.data=data; throw err;
+  }
+  return {data, status:response.status};
+}
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  const section = $('page-'+page); if (section) section.classList.remove('hidden');
+  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.page===page));
+  if (page==='editor' && token) $('editorTools').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav').forEach(n => n.addEventListener('click',()=>navigate(n.dataset.page)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.goto)));
+$('saveBase').onclick=()=>{try{setBase($('baseUrl').value);showStatus($('baseStatus'),'接口地址已保存。','ok')}catch(e){showStatus($('baseStatus'),e.message,'err')}};
+$('checkApi').onclick=async()=>{try{const r=await api('/api/modes',{auth:false});showStatus($('baseStatus'),`连接成功 · HTTP ${r.status} · ${r.data.modes?.length ?? 0} 个模式 · ${r.data.tiers?.length ?? 0} 个等级`,'ok');await loadModes()}catch(e){showStatus($('baseStatus'),e.message,'err')}};
+function openLogin(){ $('loginModal').classList.remove('hidden'); hideStatus($('loginStatus')); $('loginPassword').value=''; $('loginUsername').value=username; setTimeout(()=>$('loginUsername').focus(),50); }
+function closeLogin(){ $('loginModal').classList.add('hidden'); }
+$('loginTop').onclick=()=>{if(token){if(confirm('确定退出登录并清除此设备中保存的 Token 吗？'))clearToken()}else openLogin()};
+$('loginAuth').onclick=openLogin; $('loginEditor').onclick=openLogin;
+$('closeLogin').onclick=closeLogin; $('cancelLogin').onclick=closeLogin;
+$('loginModal').addEventListener('click',e=>{if(e.target===$('loginModal'))closeLogin()});
+$('loginForm').onsubmit=async e=>{e.preventDefault();const btn=e.submitter;btn.disabled=true;showStatus($('loginStatus'),'正在验证账号…');try{
+  const r=await api('/api/auth/login',{method:'POST',auth:false,body:{username:$('loginUsername').value.trim(),password:$('loginPassword').value}});
+  if(!r.data?.token)throw new Error('登录响应中没有返回 Token。');
+  token=r.data.token;username=$('loginUsername').value.trim();sessionStorage.setItem(TOKEN_KEY,token);sessionStorage.setItem(USER_KEY,username);setAuthUI();showStatus($('loginStatus'),'登录成功。','ok');setTimeout(()=>{closeLogin();navigate('editor')},350);
+}catch(err){showStatus($('loginStatus'),err.message,'err')}finally{btn.disabled=false}};
+async function loadModes(){
+  try{
+    const r=await api('/api/modes',{auth:false});modes=Array.isArray(r.data?.modes)?r.data.modes:[];tiers=Array.isArray(r.data?.tiers)?r.data.tiers:[];
+    const modeOptions='<option value="">全部模式</option>'+modes.map(m=>`<option value="${esc(m.code)}">${esc(m.name)} (${esc(m.code)})</option>`).join('');
+    $('filterMode').innerHTML=modeOptions;
+    $('filterTier').innerHTML='<option value="">全部等级</option>'+tiers.map(t=>`<option value="${esc(t.code)}">${esc(t.code)}</option>`).join('');
+    $('tierEditor').innerHTML=modes.map(m=>`<div class="tierfield"><strong>${esc(m.name)}</strong><div class="pair"><div><label>Current tier</label><select data-mode="${esc(m.code)}" data-kind="tier"><option value="">— None —</option>${tiers.map(t=>`<option value="${esc(t.code)}">${esc(t.code)}</option>`).join('')}</select></div><div><label>Peak tier</label><select data-mode="${esc(m.code)}" data-kind="peak"><option value="">— None —</option>${tiers.map(t=>`<option value="${esc(t.code)}">${esc(t.code)}</option>`).join('')}</select></div></div></div>`).join('');
+  }catch(e){console.warn('Could not load modes',e)}
+}
+function tierSummary(p){const entries=Object.entries(p.tiers||{}).filter(([,v])=>v&&v.tier);return entries.slice(0,4).map(([m,v])=>`${m}: ${v.tier}`).join(' · ')+(entries.length>4?' …':'')||'—'}
+function renderPlayers(players){
+  currentPlayers=players||[];$('playersBody').innerHTML=currentPlayers.length?currentPlayers.map(p=>`<tr class="playerrow"><td>${esc(p.id)}</td><td>${esc(p.name)}</td><td>${esc(p.region||'—')}</td><td>${esc(tierSummary(p))}</td><td><button data-open-player="${esc(p.id)}">View</button> <button data-edit-player="${esc(p.id)}" ${token?'':'disabled title="Admin login required"'}>Edit</button></td></tr>`).join(''):'<tr><td colspan="5" class="muted">No players found.</td></tr>';
+  $('playersBody').querySelectorAll('[data-open-player]').forEach(b=>b.onclick=()=>showPlayerDetail(Number(b.dataset.openPlayer)));
+  $('playersBody').querySelectorAll('[data-edit-player]').forEach(b=>b.onclick=()=>{if(!token)return;const p=currentPlayers.find(x=>x.id===Number(b.dataset.editPlayer));if(p){fillEditor(p);navigate('editor')}});
+  $('resultCount').textContent=`${currentPlayers.length} shown`;
+}
+async function searchPlayers(){
+  const page=Math.max(1,Number($('pageNum').value)||1),limit=Math.min(200,Math.max(1,Number($('pageLimit').value)||50));currentPage=page;
+  const params=new URLSearchParams({page:String(page),limit:String(limit),sort:'id',order:'asc'});
+  if($('searchPlayer').value.trim())params.set('search',$('searchPlayer').value.trim());
+  if($('searchRegion').value.trim())params.set('region',$('searchRegion').value.trim());
+  if($('filterMode').value)params.set('mode',$('filterMode').value);
+  if($('filterTier').value){if(!$('filterMode').value){showStatus($('explorerStatus'),'按 Tier 筛选时，请先选择游戏模式。','err');return}params.set('tier',$('filterTier').value)}
+  try{showStatus($('explorerStatus'),'正在加载玩家数据…');const r=await api('/api/players?'+params.toString(),{auth:false});const d=r.data;if(!d||!Array.isArray(d.players))throw new Error('返回的数据格式不符合预期。');renderPlayers(d.players);showStatus($('explorerStatus'),`HTTP ${r.status} · 共匹配 ${d.total} 名玩家 · 当前第 ${d.page} 页`,'ok');$('prevPage').disabled=page<=1;$('nextPage').disabled=d.players.length<limit;$('lastResponse')?.remove();}catch(e){showStatus($('explorerStatus'),e.message,'err');renderPlayers([])}
+}
+$('searchBtn').onclick=searchPlayers;$('prevPage').onclick=()=>{if(currentPage>1){$('pageNum').value=currentPage-1;searchPlayers()}};$('nextPage').onclick=()=>{$('pageNum').value=currentPage+1;searchPlayers()};
+$('exportJson').onclick=()=>{const blob=new Blob([JSON.stringify(currentPlayers,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='petier-players.json';a.click();URL.revokeObjectURL(url)};
+async function showPlayerDetail(id){
+ try{const r=await api('/api/players/'+id,{auth:false});const p=r.data?.player;if(!p)throw new Error('未找到该玩家');lastSelected=p;
+ $('playerDetailContent').innerHTML=`<div class="split"><div><div class="muted tiny">PLAYER</div><h2>${esc(p.name)}</h2><p>ID ${esc(p.id)} · Region ${esc(p.region||'—')}</p></div><div><div class="muted tiny">NOTE</div><p>${esc(p.note||'—')}</p></div></div><h3>Tier records</h3><div class="tablewrap"><table><thead><tr><th>Mode</th><th>Current tier</th><th>Peak tier</th><th>Rank</th><th>Peak rank</th></tr></thead><tbody>${Object.entries(p.tiers||{}).map(([m,t])=>`<tr><td>${esc(m)}</td><td>${esc(t.tier||'—')}</td><td>${esc(t.peak||'—')}</td><td>${esc(t.tier_rank??0)}</td><td>${esc(t.peak_rank??0)}</td></tr>`).join('')||'<tr><td colspan="5">No tier records</td></tr>'}</tbody></table></div><pre>${esc(JSON.stringify(p,null,2))}</pre><div class="row"><button class="primary" id="detailEdit" ${token?'':'disabled'}>Edit this player</button></div>`;
+ $('playerDetail').classList.remove('hidden');$('detailEdit').onclick=()=>{fillEditor(p);navigate('editor')};$('playerDetail').scrollIntoView({behavior:'smooth'});
+ }catch(e){showStatus($('explorerStatus'),e.message,'err')}
+}
+$('closeDetail').onclick=()=>$('playerDetail').classList.add('hidden');
+$('runGet').onclick=async()=>{try{const r=await api('/api/players/'+encodeURIComponent($('getId').value),{auth:false});showStatus($('getResult'),JSON.stringify(r.data,null,2),'ok')}catch(e){showStatus($('getResult'),e.message,'err')}};
+$('runModes').onclick=async()=>{try{const r=await api('/api/modes',{auth:false});showStatus($('modesResult'),JSON.stringify(r.data,null,2),'ok')}catch(e){showStatus($('modesResult'),e.message,'err')}};
+function clearEditor(){
+ $('editId').value='';$('editingId').textContent='新建玩家';$('formTitle').textContent= '添加玩家' ;$('editName').value='';$('editColor').value='#ffffff';$('editRegion').value='';$('editNote').value='';$('deletePlayerBtn').disabled=true;
+ document.querySelectorAll('#tierEditor select').forEach(s=>s.value='');hideStatus($('saveStatus'));lastSelected=null;
+}
+function fillEditor(p){
+ clearEditor();$('editId').value=p.id;$('editingId').textContent='ID '+p.id;$('formTitle').textContent='编辑玩家 #'+p.id;$('editName').value=p.name||'';$('editColor').value=/^#[0-9a-f]{6}$/i.test(p.color||'')?p.color:'#ffffff';$('editRegion').value=p.region||'';$('editNote').value=p.note||'';$('deletePlayerBtn').disabled=false;lastSelected=p;
+ document.querySelectorAll('#tierEditor select').forEach(s=>{const item=p.tiers?.[s.dataset.mode];if(item)s.value=(s.dataset.kind==='peak'?item.peak:item.tier)||''});
+}
+$('newPlayerBtn').onclick=clearEditor;$('resetForm').onclick=clearEditor;
+$('loadForEdit').onclick=async()=>{
+ if(!token){openLogin();return}
+ try{showStatus($('editList'),'正在加载玩家列表…');const q=new URLSearchParams({page:'1',limit:'200',sort:'id',order:'asc'});if($('editSearch').value.trim())q.set('search',$('editSearch').value.trim());const r=await api('/api/players?'+q,{auth:false});const ps=r.data.players||[];showStatus($('editList'),ps.map(p=>`#${p.id} · ${p.name}${p.region?' · '+p.region:''}`).join('\n')||'没有找到符合条件的玩家。','ok');
+ const list=$('editList');let picker=list.querySelector('select');if(picker)picker.remove();picker=document.createElement('select');picker.style.marginTop='10px';picker.innerHTML='<option value="">选择要编辑的玩家…</option>'+ps.map(p=>`<option value="${p.id}">#${p.id} — ${esc(p.name)}</option>`).join('');list.appendChild(picker);picker.onchange=async()=>{if(!picker.value)return;try{const x=await api('/api/players/'+picker.value,{auth:false});fillEditor(x.data.player)}catch(e){showStatus($('saveStatus'),e.message,'err')}};
+ }catch(e){showStatus($('editList'),e.message,'err')}
+};
+function collectPayload(){
+ const tiersOut={};
+ for(const m of modes){
+   const t=document.querySelector(`#tierEditor select[data-mode="${CSS.escape(m.code)}"][data-kind="tier"]`)?.value||'';
+   const peak=document.querySelector(`#tierEditor select[data-mode="${CSS.escape(m.code)}"][data-kind="peak"]`)?.value||'';
+   tiersOut[m.code]={tier:t||null,peak:peak||null};
+ }
+ return {name:$('editName').value.trim(),color:$('editColor').value||'#FFFFFF',note:$('editNote').value,region:$('editRegion').value,tiers:tiersOut};
+}
+$('savePlayer').onclick=async()=>{
+ if(!token){openLogin();return}
+ const payload=collectPayload();if(!payload.name){showStatus($('saveStatus'),'请填写玩家名称。','err');return}
+ const id=$('editId').value;const btn=$('savePlayer');btn.disabled=true;
+ try{const r=id?await api('/api/players/'+encodeURIComponent(id),{method:'PUT',body:payload}):await api('/api/players',{method:'POST',body:payload});const p=r.data?.player;if(!p)throw new Error('Request succeeded but response did not include a player object.');fillEditor(p);showStatus($('saveStatus'),`${id?'玩家资料已更新':'玩家已添加'}。HTTP ${r.status}\n${JSON.stringify(p,null,2)}`,'ok');await searchPlayers()}catch(e){showStatus($('saveStatus'),e.message,'err')}finally{btn.disabled=false}
+};
+$('deletePlayerBtn').onclick=async()=>{
+ const id=$('editId').value;if(!id)return;if(!confirm(`确定永久删除玩家 #${id}（${ $('editName').value }）吗？此操作无法撤销。`))return;
+ const btn=$('deletePlayerBtn');btn.disabled=true;try{const r=await api('/api/players/'+encodeURIComponent(id),{method:'DELETE'});showStatus($('saveStatus'),`玩家已删除。HTTP ${r.status}\n${JSON.stringify(r.data,null,2)}`,'ok');clearEditor();await searchPlayers()}catch(e){showStatus($('saveStatus'),e.message,'err');btn.disabled=false}
+};
+$('gotoEditorCreate').onclick=()=>{navigate('editor');if(token)clearEditor();else openLogin()};
+$('changePassword').onclick=async()=>{
+ if(!token){openLogin();return}
+ const oldPassword=$('oldPassword').value,newPassword=$('newPassword').value;if(!oldPassword||newPassword.length<6){showStatus($('passwordResult'),'请填写当前密码，并设置至少 6 位的新密码。','err');return}
+ try{const r=await api('/api/auth/change-password',{method:'POST',body:{oldPassword,newPassword}});showStatus($('passwordResult'),`密码修改成功。HTTP ${r.status}。如有需要，请重新登录。`,'ok');$('oldPassword').value='';$('newPassword').value='';clearToken()}catch(e){showStatus($('passwordResult'),e.message,'err')}
+};
+try{setBase(base)}catch{base=DEFAULT_BASE;setBase(base)}
+setAuthUI();loadModes();clearEditor();
+})();
+</script>
+</body>
+</html>

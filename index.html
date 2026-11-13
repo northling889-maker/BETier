@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PETier API docs V2</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;
+  --side:#0e0e0f;
+  --card:#141416;
+  --card-hover:#18181a;
+  --line:#232327;
+  --line-2:#303036;
+  --text:#ececee;
+  --muted:#8b8b93;
+  --dim:#5f5f67;
+}
+body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+.hidden{display:none!important}
+
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:8px;padding:20px 18px 16px;font-size:15px;font-weight:800;letter-spacing:.3px}
+.brand .dot{width:8px;height:8px;border-radius:50%;background:#fff}
+#nav{display:flex;flex-direction:column;gap:2px;padding:8px;flex:1;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;color:var(--muted);font-size:13.5px;font-weight:600;cursor:pointer;transition:.13s}
+.nav-item:hover{background:#18181a;color:var(--text)}
+.nav-item.active{background:#1e1e21;color:#fff}
+.nav-item i{width:15px;text-align:center;font-size:13px}
+.side-foot{border-top:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.who{font-size:12px;color:var(--dim);word-break:break-all}
+
+.content{flex:1;min-width:0;padding:28px 32px;max-width:1100px;margin:0 auto;width:100%}
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.panel-head h2{font-size:19px;font-weight:800;letter-spacing:-.2px}
+.panel-head .spacer{flex:1}
+.count{font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--line-2);font-size:13px;font-weight:600;color:var(--text);background:var(--card);transition:.13s}
+.btn:hover{background:#1c1c1f;border-color:#3a3a40}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:#ececee;color:#0a0a0b;border-color:#ececee}
+.btn.primary:hover{background:#fff;border-color:#fff}
+.btn.danger{background:rgba(255,90,90,.1);color:#ff7a7a;border-color:rgba(255,90,90,.28)}
+.btn.danger:hover{background:rgba(255,90,90,.18)}
+.btn.small{padding:5px 10px;font-size:12px;border-radius:7px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+.inp{background:#101012;border:1px solid var(--line-2);color:var(--text);padding:9px 12px;border-radius:8px;outline:none;font-size:14px}
+.inp:focus{border-color:#4a4a52;box-shadow:0 0 0 3px rgba(255,255,255,.04)}
+.search{width:200px;font-size:13px;padding:7px 11px}
+
+/* 玩家卡片（mctiers 风格） */
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:.13s}
+.pcard:hover{border-color:var(--line-2);background:var(--card-hover)}
+.prow-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pid{font-family:ui-monospace,monospace;font-size:11px;color:var(--dim);width:42px;flex-shrink:0}
+.pname{font-weight:800;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.region{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;flex-shrink:0;line-height:1.7}
+.ptitle{font-size:12px;font-weight:700;white-space:nowrap;margin-left:auto}
+.pscore{color:var(--dim);font-weight:600}
+.pact{display:flex;gap:6px;flex-shrink:0}
+.pbadges{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+.mbadge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;line-height:1.6;white-space:nowrap}
+.mbadge b{font-weight:900}
+.empty{padding:40px 0;text-align:center;color:var(--dim);font-size:13px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card.narrow{max-width:420px}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.form-row input,.form-row select{width:100%;background:#101012;border:1px solid var(--line-2);color:var(--text);padding:9px 11px;border-radius:8px;outline:none;font-size:14px}
+.form-row input:focus,.form-row select:focus{border-color:#4a4a52}
+.color-inline{display:flex;gap:8px;align-items:center}.color-inline input{flex:1}
+.color-preview{width:34px;height:34px;border-radius:8px;border:1px solid var(--line-2);flex-shrink:0;background:transparent}
+
+.mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.mode-grid .m{background:#101012;border:1px solid var(--line);border-radius:9px;padding:9px}
+.mode-grid .m .mname{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.mode-grid .m .mname img{width:15px;height:15px;object-fit:contain}
+.mode-grid .m .msel{display:flex;gap:6px}
+.mode-grid .m .msel select{flex:1;font-size:12px;padding:6px;min-width:0;border-radius:6px;background:#0e0e10;border:1px solid var(--line-2);color:var(--text);outline:none}
+
+.hint{font-size:12px;color:var(--dim);margin-top:10px}
+
+/* 登录（简洁，无多余图标） */
+.login-gate{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 56px)}
+.login-card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:32px 28px}
+.login-card h1{font-size:21px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.field input{width:100%;background:#101012;border:1px solid var(--line-2);color:var(--text);padding:10px 12px;border-radius:8px;outline:none;font-size:14px}
+.field input:focus{border-color:#4a4a52;box-shadow:0 0 0 3px rgba(255,255,255,.04)}
+.login-card .btn.primary{margin-top:6px;padding:10px}
+.err{color:#ff7a7a;font-size:12.5px;margin-top:10px;min-height:16px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stat .sname{font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat .snum{font-size:12px;color:var(--muted);white-space:nowrap}
+.sub{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px}
+.logs{display:flex;flex-direction:column;gap:6px}
+.log{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12.5px}
+.log .ltop{display:flex;flex-wrap:wrap;gap:7px;align-items:center;color:#b9b9c0}
+.log .ltop b{color:#fff}
+.log .ltop .time{margin-left:auto;color:var(--dim);font-size:11px}
+.log .ldetail{color:var(--muted);margin-top:4px;font-family:ui-monospace,monospace;word-break:break-all}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:100;display:none;align-items:center;justify-content:center;padding:14px}
+.modal.show{display:flex}
+.box{background:var(--card);border:1px solid var(--line-2);border-radius:14px;padding:22px;width:100%;max-width:820px;max-height:92vh;overflow-y:auto;position:relative}
+.box .x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;background:#1c1c1f;color:var(--muted);border:1px solid var(--line);font-size:14px}
+.box .x:hover{color:#fff;background:#26262a}
+.box h2{font-size:17px;margin-bottom:16px;font-weight:800}
+.foot{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+
+.toast-wrap{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;transform:translateY(-8px);transition:.22s;border:1px solid;max-width:80vw;word-break:break-all}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:#141416;color:#4ade80;border-color:rgba(74,222,128,.35)}
+.toast.error{background:#141416;color:#ff7a7a;border-color:rgba(255,122,122,.35)}
+
+@media(max-width:768px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;flex-direction:row;align-items:center;border-right:none;border-bottom:1px solid var(--line);overflow-x:auto;padding:6px}
+  .brand{display:none}
+  #nav{flex-direction:row;padding:0;gap:4px}
+  .nav-item{white-space:nowrap;padding:8px 11px;font-size:13px}
+  .side-foot{flex-direction:row;align-items:center;border-top:none;border-left:1px solid var(--line);padding:6px 10px;margin-left:auto}
+  .who{font-size:11px;max-width:120px}
+  .content{padding:16px}
+  .login-card{padding:26px 22px}
+  .mode-grid{grid-template-columns:1fr}
+  .search{width:140px}
+  .ptitle{display:none}
+  .pname{max-width:160px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>PETier</div>
+    <nav id="nav">
+      <div class="nav-item active" data-tab="players"><i class="fa-solid fa-users"></i>玩家管理</div>
+      <div class="nav-item" data-tab="register"><i class="fa-solid fa-user-plus"></i>注册账号</div>
+      <div class="nav-item" data-tab="logs"><i class="fa-solid fa-clipboard-list"></i>操作日志</div>
+    </nav>
+    <div class="side-foot">
+      <div class="who" id="whoAmI">未登录</div>
+      <button class="btn danger small hidden" id="logoutBtn">退出</button>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <div class="login-gate" id="loginGate">
+      <div class="login-card">
+        <h1>PETier</h1>
+        <p class="login-sub">登录管理后台</p>
+        <div class="field">
+          <label for="loginUser">用户名</label>
+          <input id="loginUser" class="inp" style="width:100%" autocomplete="username" placeholder="用户名">
+        </div>
+        <div class="field">
+          <label for="loginPass">密码</label>
+          <input id="loginPass" class="inp" style="width:100%" type="password" autocomplete="current-password" placeholder="密码">
+        </div>
+        <button class="btn primary block" id="loginBtn">登录</button>
+        <p class="err" id="loginErr" role="alert"></p>
+      </div>
+    </div>
+
+    <div id="panels" class="hidden">
+
+      <section class="panel" id="panel-players">
+        <div class="panel-head">
+          <h2>玩家管理</h2>
+          <span class="count" id="pcount">0</span>
+          <div class="spacer"></div>
+          <input class="inp search" id="searchBox" placeholder="搜索玩家 / 地区">
+          <button class="btn primary" id="addBtn">新增玩家</button>
+        </div>
+        <div id="playerList"><div class="empty">加载中...</div></div>
+      </section>
+
+      <section class="panel hidden" id="panel-register">
+        <div class="panel-head"><h2>注册测试员账号</h2></div>
+        <div class="card narrow">
+          <div class="form-row"><label>用户名</label><input id="regUser" placeholder="测试员登录名"></div>
+          <div class="form-row"><label>密码（至少 6 位）</label><input id="regPass" type="password" placeholder="登录密码"></div>
+          <button class="btn primary block" id="regSubmit">创建账号</button>
+          <p class="hint">只有总管理员能创建测试员账号；测试员登录后只能管理玩家数据</p>
+          <p class="err" id="regMsg"></p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-logs">
+        <div class="panel-head">
+          <h2>操作日志</h2>
+          <div class="spacer"></div>
+          <button class="btn" id="reloadLogs">刷新</button>
+        </div>
+        <h3 class="sub">每个测试员：总次数 / 本月次数</h3>
+        <div class="stats" id="logStats"></div>
+        <h3 class="sub">最近操作</h3>
+        <div class="logs" id="logList"></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="editModal">
+  <div class="box">
+    <button class="x" id="editClose">✕</button>
+    <h2 id="editTitle">新增玩家</h2>
+    <input type="hidden" id="editId">
+    <div class="form-row"><label>玩家名称</label><input id="formName" placeholder="玩家 ID"></div>
+    <div class="form-row"><label>名字颜色（十六进制，留空默认白色）</label>
+      <div class="color-inline"><input id="formColor" placeholder="#ffffff"><span class="color-preview" id="colorPreview"></span></div>
+    </div>
+    <div class="form-row"><label>地区</label><select id="formRegion"></select></div>
+    <div class="form-row"><label>备注</label><input id="formNote" placeholder="选填"></div>
+    <h3 class="sub" style="margin-top:16px">各模式 Tier（每行左=当前，右=巅峰）</h3>
+    <div class="mode-grid" id="modeGrid"></div>
+    <div class="foot"><button class="btn" id="editCancel">取消</button><button class="btn primary" id="editSubmit">保存</button></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const API='https://petierapi.ccwu.cc';
+const DEFAULT_MODES=[
+ {code:'sword',name:'Sword',icon:'sword'},{code:'axe',name:'Axe',icon:'axe'},{code:'smp',name:'SMP',icon:'smp'},{code:'buhc',name:'BUHC',icon:'buhc'},
+ {code:'vanilla',name:'Vanilla',icon:'vanilla'},{code:'mace',name:'Mace',icon:'mace'},{code:'pot',name:'Pot',icon:'pot'},{code:'nethpot',name:'NethPot',icon:'nethop'},
+ {code:'single',name:'Single',icon:null},{code:'archer',name:'Archer',icon:null},{code:'opot',name:'OPot',icon:null},{code:'uhc',name:'UHC',icon:'uhc'},
+ {code:'bedwars',name:'Bedwars',icon:null},{code:'fireball',name:'Fireball',icon:null},{code:'sumo',name:'Sumo',icon:null},{code:'boxing',name:'Boxing',icon:null}
+];
+let MODES=DEFAULT_MODES.slice();
+const TIER_SCORE={HT1:60,RHT1:60,LT1:45,RLT1:45,HT2:30,RHT2:30,LT2:20,RLT2:20,HT3:10,LT3:6,HT4:4,LT4:3,HT5:2,LT5:1,'-':0};
+const TITLES=[
+ {name:'Combat Grandmaster',min:800,color:'#ffd700'},
+ {name:'Combat Master',min:500,color:'#b35cff'},
+ {name:'Combat Ace',min:200,color:'#42a5f5'},
+ {name:'Combat Specialist',min:100,color:'#36d399'},
+ {name:'Combat Cadet',min:40,color:'#f2ee63'},
+ {name:'Combat Novice',min:20,color:'#ff8533'},
+ {name:'Rookie',min:0,color:'#868686'}
+];
+
+/* ===== 地区颜色 ===== */
+const REGION_COLORS = {
+  '华东': { bg: 'rgba(27,165,35,0.1)',    fg: 'rgba(97,235,105,1)'  },
+  '华南': { bg: 'rgba(143,45,92,0.1)',    fg: 'rgba(213,115,162,1)' },
+  '华中': { bg: 'rgba(2,149,108,0.1)',    fg: 'rgba(72,219,178,1)'  },
+  '华北': { bg: 'rgba(209,174,6,0.1)',    fg: 'rgba(255,244,76,1)'  },
+  '西南': { bg: 'rgba(31,146,175,0.1)',   fg: 'rgba(101,216,245,1)' },
+  '西北': { bg: 'rgba(186,99,6,0.1)',     fg: 'rgba(255,169,76,1)'  },
+  '东北': { bg: 'rgba(185,80,78,0.1)',    fg: 'rgba(255,150,148,1)' },
+  '香港': { bg: 'rgba(120,32,122,0.1)',   fg: 'rgba(190,102,192,1)' },
+  '澳门': { bg: 'rgba(216,125,115,0.1)',  fg: 'rgba(255,195,185,1)' },
+  '台湾': { bg: 'rgba(198,220,226,0.1)',  fg: 'rgba(255,255,255,1)' },
+  '其他': { bg: 'rgba(79,54,106,0.1)',    fg: 'rgba(149,124,176,1)' }
+};
+const REGION_LIST = ['华东','华南','华中','华北','西南','西北','东北','香港','澳门','台湾','其他'];
+/* 旧数据兼容 */
+const REGION_ALIAS = { '港澳台': '香港', '其它': '其他' };
+function getRegionColor(region) {
+  const key = REGION_ALIAS[region] || region;
+  return REGION_COLORS[key] || REGION_COLORS['其他'];
+}
+
+/* ===== Tier 徽章颜色（mctiers 风格） ===== */
+const TIER_COLORS={
+  HT1:'#ff5c5c',LT1:'#ff9040',RHT1:'#d14a4a',RLT1:'#cc7436',
+  HT2:'#ffb020',LT2:'#ffd23f',RHT2:'#cf8f1c',RLT2:'#cfae3a',
+  HT3:'#8ed654',LT3:'#5cc26a',
+  HT4:'#4dd0e1',LT4:'#4aa3e0',
+  HT5:'#9a9aa0',LT5:'#7a7a82'
+};
+function tierStyle(t){
+  const c=TIER_COLORS[t];
+  if(!c)return 'display:none';
+  const retired=t.charAt(0)==='R';
+  return 'background:'+c+';color:#0a0a0b;'+(retired?'font-style:italic;opacity:.85':'');
+}
+
+const ALL_TIERS=['-','HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5','RHT1','RLT1','RHT2','RLT2'];
+
+let token=localStorage.getItem('petier_token')||'';
+let me=null;
+let players=[];
+let search='';
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(s){return String(s||'').replace('T',' ').replace('Z','').slice(0,16);}
+function titleOf(p){return TITLES.find(t=>p>=t.min)||TITLES[TITLES.length-1];}
+function tierScore(t){return TIER_SCORE[t]||0;}
+function getTier(p,c){const t=p.tiers&&p.tiers[c];return (t&&t.tier)?t.tier:'-';}
+function getPeak(p,c){const t=p.tiers&&p.tiers[c];return (t&&t.peak)?t.peak:'-';}
+function calcTotal(p){let s=0;MODES.forEach(m=>s+=tierScore(getTier(p,m.code)));return s;}
+function iconUrl(ic){return ic?('https://mctiers.com/tier_icons/'+ic+'.svg'):'';}
+function modeIcon(m,size){size=size||15;const u=iconUrl(m.icon);if(u){return '<img src="'+u+'" style="width:'+size+'px;height:'+size+'px;object-fit:contain" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-block\'" alt="'+esc(m.name)+'"><span style="display:none">'+esc(m.name.slice(0,2))+'</span>';}return '<span style="font-size:'+size+'px;color:#8a97a8">'+esc(m.name.slice(0,2))+'</span>';}
+
+function toast(msg,type){
+  const wrap=$('toastWrap');
+  const el=document.createElement('div');
+  el.className='toast '+(type||'success');
+  el.textContent=msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>el.remove(),300);
+  },2400);
+}
+
+async function api(path,opts){
+  opts=opts||{};
+  opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});
+  if(token)opts.headers['Authorization']='Bearer '+token;
+  const res=await fetch(API+path,opts);
+  let data=null;try{data=await res.json();}catch(e){}
+  if(!res.ok){throw new Error((data&&(data.error||data.msg))||('HTTP '+res.status));}
+  return data;
+}
+
+async function loadModes(){
+  try{
+    const res=await fetch(API+'/api/modes');
+    let data=null;
+    try{data=await res.json();}catch(e){}
+    if(!res.ok)throw new Error((data&&(data.error||data.msg))||('HTTP '+res.status));
+    if(!data||!Array.isArray(data.modes))throw new Error('接口未返回有效的 modes 数组');
+    const normalized=data.modes
+      .filter(m=>m&&typeof m.code==='string'&&typeof m.name==='string')
+      .map(m=>({code:m.code.trim(),name:m.name.trim(),icon:null,sort_order:Number(m.sort_order)||999}))
+      .filter(m=>m.code&&m.name)
+      .sort((a,b)=>a.sort_order-b.sort_order)
+      .map(({code,name})=>({code,name,icon:DEFAULT_MODES.find(x=>x.code===code)?.icon||null}));
+    if(!normalized.length)throw new Error('modes 列表为空');
+    MODES=normalized;
+    return true;
+  }catch(e){
+    console.warn('读取 /api/modes 失败，使用内置模式列表：',e);
+    MODES=DEFAULT_MODES.slice();
+    toast('模式列表加载失败，暂时使用内置列表','error');
+    return false;
+  }
+}
+
+function buildFormStatic(){
+  $('formRegion').innerHTML=REGION_LIST.map(r=>'<option value="'+esc(r)+'">'+esc(r)+'</option>').join('');
+  const opts=ALL_TIERS.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
+  $('modeGrid').innerHTML=MODES.map(m=>'<div class="m"><div class="mname">'+modeIcon(m,15)+esc(m.name)+'</div><div class="msel"><select id="cur_'+esc(m.code)+'">'+opts+'</select><select id="pk_'+esc(m.code)+'">'+opts+'</select></div></div>').join('');
+}
+
+function switchTab(tab){
+  const allowed=['players','logs'];
+  if(me&&me.role==='super')allowed.push('register');
+  if(allowed.indexOf(tab)<0)tab='players';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));
+  ['players','register','logs'].forEach(t=>$('panel-'+t).classList.toggle('hidden',t!==tab));
+  if(tab==='logs')loadLogs();
+}
+
+async function login(){
+  const u=$('loginUser').value.trim(),p=$('loginPass').value;
+  $('loginErr').textContent='';
+  if(!u||!p){$('loginErr').textContent='请输入用户名和密码';return;}
+  const btn=$('loginBtn');
+  btn.disabled=true;
+  btn.textContent='正在登录...';
+  try{
+    const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+    token=d.token;localStorage.setItem('petier_token',token);
+    me=await api('/api/me');
+    applyRoleUI();switchTab('players');await loadPlayers();
+  }catch(e){
+    $('loginErr').textContent='登录失败：'+e.message;
+    if(!me){token='';localStorage.removeItem('petier_token');}
+  }finally{
+    btn.disabled=false;
+    btn.textContent='登录';
+  }
+}
+
+function logout(){
+  token='';me=null;localStorage.removeItem('petier_token');
+  $('loginGate').classList.remove('hidden');$('panels').classList.add('hidden');
+  $('whoAmI').textContent='未登录';$('logoutBtn').classList.add('hidden');
+}
+
+function applyRoleUI(){
+  if(!me)return;
+  $('loginGate').classList.add('hidden');$('panels').classList.remove('hidden');
+  $('whoAmI').textContent=me.username+' · '+(me.role==='super'?'超级管理员':'测试员');
+  $('logoutBtn').classList.remove('hidden');
+  const regNav=document.querySelector('.nav-item[data-tab="register"]');
+  if(regNav)regNav.classList.toggle('hidden',me.role!=='super');
+  $('addBtn').classList.toggle('hidden',me.role!=='tester');
+}
+
+async function loadPlayers(){
+  try{
+    const d=await api('/api/players?limit=500');
+    players=d.players||[];
+    renderPlayers();
+  }catch(e){
+    $('playerList').innerHTML='<div class="empty" style="color:#ff7a7a">加载失败：'+esc(e.message)+'</div>';
+  }
+}
+
+function renderPlayers(){
+  const canEdit=me&&me.role==='tester';
+  let arr=players.slice();
+  if(search.trim()){
+    const kw=search.trim().toLowerCase();
+    arr=arr.filter(p=>(p.name||'').toLowerCase().includes(kw)||(p.region||'').toLowerCase().includes(kw));
+  }
+  arr.sort((a,b)=>a.id-b.id);
+  $('pcount').textContent=arr.length+' 位';
+  const box=$('playerList');
+  if(!arr.length){box.innerHTML='<div class="empty">暂无玩家</div>';return;}
+
+  box.innerHTML=arr.map(p=>{
+    const total=calcTotal(p);
+    const t=titleOf(total);
+    const region=REGION_ALIAS[p.region]||p.region||'其他';
+    const rc=getRegionColor(region);
+    const nc=(p.color&&/^#[0-9a-fA-F]{6}$/.test(p.color))?p.color:'#ececee';
+
+    let badges='';
+    MODES.forEach(m=>{
+      const tier=getTier(p,m.code);
+      if(!tier||tier==='-')return;
+      badges+='<span class="mbadge" style="'+tierStyle(tier)+'" title="'+esc(m.name)+' 当前 '+esc(tier)+' · 巅峰 '+esc(getPeak(p,m.code))+'">'+esc(m.name)+'<b>'+esc(tier)+'</b></span>';
+    });
+
+    let acts='';
+    if(canEdit){
+      acts='<button class="btn small" data-edit="'+p.id+'">编辑</button>'
+          +'<button class="btn small danger" data-del="'+p.id+'">删除</button>';
+    }
+
+    return '<div class="pcard">'
+      +'<div class="prow-top">'
+        +'<span class="pid">#'+p.id+'</span>'
+        +'<span class="pname" style="color:'+nc+'">'+esc(p.name)+'</span>'
+        +'<span class="region" style="background:'+rc.bg+';color:'+rc.fg+'">'+esc(region)+'</span>'
+        +'<span class="ptitle" style="color:'+t.color+'">'+esc(t.name)+' <span class="pscore">'+total+'</span></span>'
+        +'<span class="pact">'+acts+'</span>'
+      +'</div>'
+      +(badges?'<div class="pbadges">'+badges+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function openAdd(){
+  $('editTitle').textContent='新增玩家';
+  $('editId').value='';$('formName').value='';$('formColor').value='';$('formNote').value='';
+  $('colorPreview').style.background='transparent';$('formRegion').value='其他';
+  MODES.forEach(m=>{$('cur_'+m.code).value='-';$('pk_'+m.code).value='-';});
+  $('editModal').classList.add('show');
+}
+
+function openEdit(id){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  $('editTitle').textContent='编辑：'+p.name;
+  $('editId').value=p.id;$('formName').value=p.name||'';$('formColor').value=p.color||'';
+  $('formNote').value=p.note||'';
+  const regKey=REGION_ALIAS[p.region]||p.region;
+  $('formRegion').value=REGION_COLORS[regKey]?regKey:'其他';
+  $('colorPreview').style.background=(p.color&&/^#[0-9a-fA-F]{6}$/.test(p.color))?p.color:'transparent';
+  MODES.forEach(m=>{$('cur_'+m.code).value=getTier(p,m.code);$('pk_'+m.code).value=getPeak(p,m.code);});
+  $('editModal').classList.add('show');
+}
+
+async function submitEdit(){
+  const id=$('editId').value;
+  const tiers={};
+  MODES.forEach(m=>{tiers[m.code]={tier:$('cur_'+m.code).value,peak:$('pk_'+m.code).value};});
+  const body={name:$('formName').value.trim(),color:$('formColor').value.trim()||'#FFFFFF',note:$('formNote').value.trim(),region:$('formRegion').value,tiers:tiers};
+  if(!body.name){toast('请填写玩家名称','error');return;}
+
+  const btn=$('editSubmit');
+  btn.disabled=true;
+  try{
+    if(id){await api('/api/players/'+id,{method:'PUT',body:JSON.stringify(body)});}
+    else{await api('/api/players',{method:'POST',body:JSON.stringify(body)});}
+    $('editModal').classList.remove('show');
+    toast('保存完成','success');
+    await loadPlayers();
+  }catch(e){
+    toast('保存失败：'+e.message,'error');
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function deletePlayer(id){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  if(!confirm('确定删除玩家 '+p.name+' ？'))return;
+  try{
+    await api('/api/players/'+id,{method:'DELETE'});
+    toast('删除成功','success');
+    await loadPlayers();
+  }
+  catch(e){toast('删除失败：'+e.message,'error');}
+}
+
+async function submitRegister(){
+  const u=$('regUser').value.trim(),p=$('regPass').value;
+  $('regMsg').textContent='';
+  if(!u||p.length<6){$('regMsg').style.color='#ff7a7a';$('regMsg').textContent='用户名不能为空，密码至少6位';return;}
+  try{
+    await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
+    $('regUser').value='';$('regPass').value='';
+    $('regMsg').style.color='#4ade80';$('regMsg').textContent='创建成功：'+u;
+    toast('账号创建成功','success');
+  }catch(e){$('regMsg').style.color='#ff7a7a';$('regMsg').textContent='失败：'+e.message;}
+}
+
+async function loadLogs(){
+  try{
+    const d=await api('/api/logs');
+    const stats=d.stats||[],logs=d.logs||[];
+    let sh='';if(!stats.length)sh='<div style="color:#5f5f67;font-size:13px">暂无记录</div>';
+    stats.forEach(s=>{sh+='<div class="stat"><span class="sname">'+esc(s.admin_name)+'</span><span class="snum">总 '+s.total+' · 本月 '+s.this_month+'</span></div>';});
+    $('logStats').innerHTML=sh;
+    let lh='';if(!logs.length)lh='<div style="color:#5f5f67;font-size:13px">暂无记录</div>';
+    logs.forEach(l=>{lh+='<div class="log"><div class="ltop"><b>'+esc(l.admin_name)+'</b><span>'+esc(l.action)+'</span><span>'+esc(l.player_name||'')+'</span><span class="time">'+esc(fmtDate(l.created_at))+'</span></div><div class="ldetail">'+esc(l.detail||'')+'</div></div>';});
+    $('logList').innerHTML=lh;
+  }catch(e){$('logList').innerHTML='<div style="color:#ff7a7a;font-size:13px">加载失败：'+esc(e.message)+'</div>';}
+}
+
+function bindEvents(){
+  $('loginBtn').addEventListener('click',login);
+  $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+  $('logoutBtn').addEventListener('click',logout);
+  document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>switchTab(n.dataset.tab)));
+  $('searchBox').addEventListener('input',e=>{search=e.target.value;renderPlayers();});
+  $('addBtn').addEventListener('click',openAdd);
+  $('editClose').addEventListener('click',()=>$('editModal').classList.remove('show'));
+  $('editCancel').addEventListener('click',()=>$('editModal').classList.remove('show'));
+  $('editSubmit').addEventListener('click',submitEdit);
+  $('editModal').addEventListener('click',e=>{if(e.target===$('editModal'))$('editModal').classList.remove('show');});
+  $('formColor').addEventListener('input',()=>{
+    const v=$('formColor').value.trim();
+    $('colorPreview').style.background=/^#[0-9a-fA-F]{6}$/.test(v)?v:'transparent';
+  });
+  $('playerList').addEventListener('click',e=>{
+    const eb=e.target.closest('[data-edit]');if(eb){openEdit(Number(eb.dataset.edit));return;}
+    const db=e.target.closest('[data-del]');if(db){deletePlayer(Number(db.dataset.del));return;}
+  });
+  $('regSubmit').addEventListener('click',submitRegister);
+  $('reloadLogs').addEventListener('click',loadLogs);
+}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  await loadModes();
+  buildFormStatic();
+  bindEvents();
+  if(token){
+    try{me=await api('/api/me');applyRoleUI();switchTab('players');await loadPlayers();}
+    catch(e){logout();}
+  }
+});
+</script>
+</body>
+</html>
